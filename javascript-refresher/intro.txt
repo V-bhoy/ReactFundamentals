@@ -1,0 +1,198 @@
+What is javascript ?
+- high-level programming language used primarily to create interactive and dynamic content on websites.
+
+How it works ?
+- Every modern browser (like Chrome, Firefox, Edge) has a built-in JavaScript Engine
+ that understands and runs JavaScript code.
+ ex. Chrome - V8, Firefox → SpiderMonkey
+1.	You visit a webpage.
+2.	The browser loads the HTML, CSS, and JavaScript by sending a request to the server.
+3.	The JavaScript Engine:
+	•	Parses the code (reads it)
+	•	Interprets it into machine code
+	•	Executes it line by line
+- Some modern engines has JIT compilers that compiles the code at runtime increasing performance
+- Any interaction on the webpage send a request again to the server and the updated html is sent by the server,
+  the webpage is reloaded again and the changes are reflected
+- Javascript helps change HTML and CSS on the page without needing to send the request and reload it again.
+- It is also used on server side using Node.js
+
+- JavaScript is single-threaded, meaning it runs one task at a time.
+
+             🧵 MAIN THREAD (Call Stack)
+                |
+                |   [JS Code runs here]
+                v
+  ┌────────────┐      ┌─────────────┐      ┌──────────────┐
+  │  Web APIs  │ ───▶ │ Callback    │ ◀─── │ Event Loop   │
+  │  (Browser) │      │  Queue      │      │              │
+  └────────────┘      └─────────────┘      └──────────────┘
+
+- There is a main thread (execution thread) having its own call stack
+- Whenever a js file is executed
+- A global execution context is created in it.
+- It is created in two phases -->
+- Creation phase: it allocates memory to all declared variables and functions.
+  In case of variables it stores undefined and for functions it stores the code as it is
+- Code execution phase: the variables are assigned with their actual values.
+  Whenever a function is invoked, a new execution context is created in the execution thread,
+   and it will be destroyed after the function is executed.
+- After the program completely executed, the global execution context destroyed.
+- And then the stack of the main thread becomes empty.
+- The execution context are independent of each other, it occupies its own memory and maintains its own
+  execution stack which keep track of the execution
+
+Whenever a global execution is created,
+it creates a global object which is nothing but window object in case of browsers.
+This global object has many inbuilt window methods and all the variables and functions
+that are defined globally within the program that means outside any kind of block.
+"this" keyword is a reference to this global object.
+
+What is HOISTING?
+It is JavaScript’s behavior of moving variable and function declarations
+to the top of their scope (either global or function scope) before the code is executed.
+But only the declaration is hoisted, not the assignment.
+Behind the scenes, only the memory has been allocated in the global object.
+
+** VARIABLES
+- it is a reference to the data that is stored in the memory
+- The type of the data is checked & can change at runtime.
+- It is declared using three keywords ---> var, let & const
+1. var
+- it is function scoped
+- You can redeclare and reassign a variable with keyword var
+- Declaring and assigning is not mandatory at the same time, you can declare first and then assign or vice versa
+- you can use it before declaration
+2. let
+- It is block scoped
+- You can reassign the variables with let keyword but not redeclare.
+- Declaring and assigning is not mandatory at the same time,
+  Also you cannot assign value before declaration. You need to declare first.
+- You cannot use it before declaration, you get a reference error
+3. const
+- It is block scoped
+- You cannot reassign or redeclare the variables with const keyword
+- Declaring and assigning is  mandatory at the same time.
+- You cannot use it before declaration, you get a reference error
+
+- var is hoisted, and you can use it before declaration.
+console.log(a); // undefined
+var a = 10;
+
+- let and const are also hoisted, but they stay in a “Temporal Dead Zone” (TDZ) from the start of the block until their declaration.
+  You can’t use them before declaration.
+ console.log(b); // ❌ ReferenceError!
+ let b = 20;
+
+- Function declarations are fully hoisted, including the function body.
+sayHi(); // ✅ Works!
+function sayHi() {
+  console.log("Hello!");
+}
+
+- function expressions are hoisted as a variable (declared), but not as a function (not assigned yet).
+greet(); // ❌ TypeError: greet is not a function, its value is undefined
+var greet = function() {
+  console.log("Hi!");
+};
+
+** undefined vs not defined ?
+undefined --> it is the placeholder for the value of the variable which is not yet assigned but declared
+not defined --> it is a reference error that occurs when we try to access a reference
+which is not declared, that is memory is not allocated, not present in the memory.
+Assigning undefined to a variable is a bad practice because it has a specific purpose
+
+** SCOPE ==> it is the area where a variable/functions is accessible
+There are three main types of scope in JavaScript:
+1. Global Scope - accessible anywhere but which are declared outside the block
+2. Function Scope - Variables declared inside a function — only accessible inside that function
+3. Block Scope - Variables declared with let or const inside {} — accessible only inside that block
+SCOPE CHAIN --> When JavaScript can’t find a variable in the current scope,
+it goes up the chain — from child to parent — until it finds it or reaches global.
+
+BLOCK --> defined using {} which combines multiple statements together as one unit
+      ---> we can use it where Js is expecting a single statement ex. if(condition) single statement / block
+
+What is shadowing ?
+Shadowing happens when a variable in an inner scope has the same name as a variable in an outer scope,
+and the inner one “shadows” or hides the outer one.
+ex. var a = 100;
+    let b = 200;
+    {
+       var a = 10;
+       let b = 20;
+       console.log(a);
+       console.log(b); // 20, the b value hides the value in outer scope
+    }
+    console.log(a) // 10, the value was modified because it pointed to the same memory address
+     console.log(b); // 200 , the block scope gets destroyed and the variable b was declared in 2 different scopes
+                              the block scope, and a separate memory space when declared in global
+                              Same thing happens with const and when using functions instead of block
+ILLEGAL Shadowing ?
+happens when you try to declare a variable using let or const,
+but it conflicts with an already declared var variable in the same or overlapping scope.
+This example id not valid, but vice versa is valid.
+ex.let a = 10;
+   {
+     var a = 10; // var is crossing the boundaries and interfering with let, which violates shadowing
+     If we use function instead of block here, then it is valid
+   }
+
+What is lexical environment ?
+it is a concept used internally by JavaScript to track variables and functions.
+Each time a function runs, JavaScript creates a Lexical Environment object with it, which contains:
+All variables/functions declared in that scope and a reference to its parent environment
+This is how the scope chain is built — by following these parent references.
+
+What is temporal dead zone?
+let and const are stored in a different memory space other than global
+The time period from the variable declaration to its initialization with a value is known a
+as temporal dead zone
+When you try to access the variables in a temporal dead zone, it gives reference error
+We cannot access let and const variables using this or window object, it is not present there
+you get undefined
+To avoid temporal dead zone, push the initialized variables at the top of the scope
+making the window shrink to zero
+
+** data types ->
+- Primitive —> number, string, boolean, undefined, null, Symbol, bigInt
+- Non-primitive data types —> objects, arrays, functions
+
+** Arithmetic operators:
+- + —> add
+- - —> subtract
+- * —> multiply
+- / —-> divide
+- % —-> returns remainder
+- ** —> to the power of
+
+** Assignment operators:
+= , +=, *= , -=, /=, %=, **=,
+y ??= z —> assigns z to y if y is null/undefined
+
+** Comparison operators: returns boolean value
+== —> compares values
+!= —> compare inequality
+=== —> compares values with type
+!== —> compares inequality with type
+> , < , >=, <=
+
+** Logical operators:
+&&, ||, ! (inverts boolean value), ?? (Returns right hand operand if the left hand is null / undefined)
+
+** Ternary operator —> condition ? Return something : return something
+
+** Comma operator:
+Operates operands from left to right sequentially —> const x = (1, 2, 3);
+
+** Unary operators: works on single operand
+-, +, ++, —, !, typeof , delete, void --> evaluates the given expression and then returns undefined.
+
+** In operator :
+checks if a specified property exists in an object or if an element exists in an array. It returns a Boolean value.
+let languages = ["HTML", "CSS", "JavaScript"];
+console.log(1 in languages); —> true
+Index 1 is present in array
+
+** Instanceof operator:
+tests if an object is an instance of a particular class or constructor, returning a Boolean value.

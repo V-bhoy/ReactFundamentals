@@ -1,0 +1,25 @@
+What is error ?
+It is an abnormal event that occurs at runtime and abrupt the normal flow of the program
+
+Types:
+1. Syntax error ===> occurs when there is invalid syntax in the code
+ex. const x;
+
+2. Reference error ==> occurs when we try to access a reference that is not present in the memory or is out of scope
+ex. console.log(a); a does not exist
+
+3. Type error ==> occurs when an operation is performed on incompatible type
+ex. let a = "hello" * 2;
+
+You can manually throw error by passing value/string/object
+ex. throw new Error("I am an error"); You create an instance of Error or subclass of it
+
+can be handled using -
+1. try-catch block
+2. try-catch-finally block
+
+try-catch cannot handle following errors
+1. syntax
+2. stack overflow
+3. memory leaks
+

@@ -1,2 +1,2 @@
 # ReactFundamentals
-React Tutorials with lataest version 19
+React Tutorials with latest version 19

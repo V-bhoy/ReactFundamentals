@@ -1,0 +1,297 @@
+React?
+- open-source javascript library developed for building user interfaces, particularly for single
+page applications
+
+What is DOM?
+- Document Object Model --> a programmatic tree-like structure that is created by the browser
+- and each html element acts as a node inside the DOM tree
+- Javascript accesses or modifies this DOM tree using the web apis provided by the browser
+  through window object.
+- Browser renders this DOM tree on the UI and Javascript makes it dynamic in nature
+🧠 When a browser loads a webpage:
+1. HTML is parsed → DOM is created
+2. CSS is parsed → CSSOM is created
+3. JS is executed → Can access/manipulate the DOM via Web APIs
+4. Browser renders the page (Render Tree) and paints to screen
+
+- The top-most (root) of this tree is the document, that is the document object
+- From there, it adds: all the html elements in the tree as nodes
+- Each node in the DOM tree is represented as a JavaScript object.
+
+The browser internally has a rendering engine (like Blink in Chrome, WebKit in Safari).
+Tracks changes to the DOM and styles
+schedules a rendering process --> Style recalculation, Positions and sizes recalculated
+Drawing pixels to screen, Combine layers & display
+Every change can trigger a new cycle, could cause multiple re-flows and repaints if not optimized.
+Each dom manipulation takes time, which lowers the performance of UI.
+
+This where react plays a crucial role, by minimizing the number of renders improving the performance
+using virtual DOM
+
+What is virtual DOM ?
+- it is a lightweight virtual representation of the DOM tree that is created in browser memory
+  by react in order to optimize the updates and rendering of the actual DOM tree.
+
+What happens internally?
+index.html ---> <div id="root"></div> // Browser parses this html and creates a single node
+                                                under the root document node in the actual DOM
+index.js / main.jsx --->
+createRoot() & render() in react-dom/client
+createRoot --> it takes the div node with id root as the argument and creates a root container
+               for rendering the components in the actual DOM
+render ---> <App/> --> root component of virtual DOM tree which holds all UI components nested within it
+            The render method renders this App components into the actual DOM.
+
+Behind the scenes in the render method,
+1. The app component, it returns JSX
+2. Babel(which was used in CRA) OR SWC/esbuild used in vite (alternative babel), it converts JSX code
+   to plain javascript objects and creates react elements
+3. These react elements are used to build the virtual DOM
+4. React renders the component tree inside the root DOM node. This is the initial render
+5. On re-render inside your app or any child component, calls the component's function again
+   rerun the JSX  code inside it into react elements, build a new Virtual DOM,
+   Compare it with the previous virtual DOM using diff algorithm, calculate the differences
+   update only the changed parts which are batched together as a single update that
+   is being replaced in the actual DOM like a patch.
+   React does NOT re-render the entire DOM — only the parts of the component tree that changed.
+Example:
+DOM structure -->
+<div>              ← Node A (level 1)
+  <section>        ← Node B (level 2)
+    <ul>           ← Node C (level 3)
+      <li></li>    ← Node D (level 4)
+    </ul>
+  </section>
+</div>
+🌿 In Vanilla JS:
+You have to manually find the element and update it:
+document.querySelector('li').textContent = "Updated!";
+But if you do: document.querySelector('ul').innerHTML = "<li>New</li>";
+👎 This destroys and rebuilds the whole <ul> — even if the li was 90% the same.
+Vanilla JS does not compare old/new versions — it just obeys your command exactly.
+⚛️ In React (with Virtual DOM):
+Here’s what happens:
+✅ 1. React Re-renders the Component (in memory)
+It creates a new Virtual DOM tree in memory after the state or props change.
+✅ 2. React Compares (Diffing Algorithm)
+It does a node-by-node comparison between:
+	•	The previous virtual DOM
+	•	The new virtual DOM
+And it walks the tree depth-first to compare nodes by:
+Type of node -	<div> vs <section>?
+Attributes/props -	className, id, etc.
+Children -	Recursively compared
+Keys (in lists) - For smart reordering
+✅ 3. React Marks Only Changed Nodes
+React does NOT touch nodes that haven’t changed.
+React then gives the difference (called a patch) to the browser having information
+what has actually been changed and browser applies them efficiently
+In React, even if you render the whole component again,
+it doesn’t touch real DOM until it calculates what actually changed.
+
+What is JSX?
+JSX is a syntax extension to JavaScript used in React.
+It allows you to write HTML-like code inside JavaScript.
+helps you write UI in a declarative way where you write UI + logic in one place
+
+What is transpiling the JSX code?
+-Transform + Compilation --> transforming JSX to browser readable Javascript
+where it uses createElement(type, props, children)
+Example: React.createElement(
+           "div",
+           null,
+           React.createElement("h2", null, "Hey"),
+           React.createElement("p", null, "What's up?")
+         )
+Foe component --> <div>
+                    <h2>Hey</h2>
+                    <p>What's up?</p>
+                  </div>
+
+** You write your app in multiple files -
+But the code isn’t browser-ready in a way browsers can actually understand and run efficiently.
+So we use a bundler to combine all the JS files, transpile it, resolve its dependencies,
+minify/compress and optimize it to a single set of few files to send it to the browser which it can actually understand & run
+and that final packaged file is known as bundle.
+Webpack is the most widely-used bundler in frontend development (used in CRA).
+✅ Read your entry file (e.g., index.js)
+✅ Follows the import graph (like a tree)
+✅ Bundles all JS, CSS, assets
+✅ Applies loaders (e.g., Babel) and plugins
+✅ Outputs final build files: bundle.js, styles.css, etc.
+Vite (pronounced veet) is a modern frontend build tool that improves on Webpack’s pain points.
+
+When we run our app in development by npm start/ npm run dev
+a local development server (provided by the bundler) starts up — and serves your app at runtime.
+It watches your source files (React/JSX/TS/CSS)
+When a file changes:
+	•	It transpiles the updated file (via Babel or esbuild)
+	•	It re-bundles the code (fully or partially)
+	•	Then it updates the browser instantly
+It provides Hot Module Reloading (HMR) or full reload
+These bundle files are being generated and served dynamically by the dev server from your /src folder.
+🚀 In Production Environment (npm run build + Deploy)
+	•	We create a build once → bundles everything (JS, CSS, images, etc.)
+	•	This build is optimized, minified, transpiled, bundled, ready to be served fast
+	•	App is served as static files to users from a server (like Netlify, Vercel, etc.)
+	•	No re-bundling or transpilation happens live
+npm run build command creates a final production bundle — typically inside a folder like dist/ or build/.
+What if you make a change later (after going live)?
+	•	The current live site won’t change automatically
+	•	You need to:
+	1.	Make changes in your source code
+	2.	Run npm run build again
+	3.	Redeploy the new build
+	•	Only then will the users see the updated app
+
+-------------------------------------------------------------------------------
+Feature	   | Webpack	                   |  Vite
+-------------------------------------------------------------------------------
+Build Time |Slower (transpiles everything) |Fast! (uses esbuild for dev)
+Dev Server |Re-bundles everything on each save 😩	 |Instant updates via native ESM
+Transpiler |Babel	                       |esbuild or SWC (written in Rust ⚡)
+(Hot Module|Slower	                       |Lightning fast
+Reload)	   |                               |
+---------------------------------------------------------------------------------
+When we make a change & save webpack will rebuild the whole dependency graph and
+re-bundle everything from the start and server it to the browser, which takes a lot of time with
+respect to large applications
+Vite will transpile and re-bundle only that part which is actually imported and used by
+the browser using the browser native ES modules
+Hot Module reload is a concept where only the updated module is replaced live in the browser
+at runtime without changing the state of the component, there is no full page reload.
+Without HMR, a change reloads the whole page again and the state is lost
+
+1.	Bundler watches your source files
+→ Example: Vite, Webpack, or Parcel detects the file change.
+2.	Bundler compiles/transpiles the changed file
+→ Converts JSX/ES6+ → regular JS
+→ Packages it with HMR metadata (for hot updates)
+3.	Dev server sends the update to the browser (via WebSocket)
+→ The browser receives the updated module
+→ Executes it in memory
+4.React now has access to the updated code
+→ React evaluates it, re-renders the affected components
+→ Runs Virtual DOM diffing
+→ Applies minimal updates to the Actual DOM
+==> React detects the changes after they arrive in the browser, not directly from source files.
+ In production, there’s no HMR, no rebundling, no dev server.
+⚛️ It’s just React running in the browser, working with a single, pre-built bundle.
+At runtime, when the user clicks or types:
+	•	React updates the Virtual DOM
+	•	Calculates diffs
+	•	Updates only what’s necessary in the actual DOM
+Ensures minimal actual DOM updates → leads to fast UI updates even on large apps.
+Area	        How React Helps in Production	            What You Need to Do
+Initial Load	Minification, tree shaking, code splitting	Lazy load, split wisely
+Rendering	    Virtual DOM, optimized diffing	            Avoid unnecessary re-renders
+Interactivity	Fast updates, batched updates            	Debounce inputs,
+                                                            avoid heavy tasks on main thread
+Memory	        Smaller runtime                          	Clean up effects, avoid memory leaks
+
+Build ---> a production-ready version of your app.
+A Build includes:
+	•	All JS bundled and minified
+	•	CSS extracted and optimized
+	•	Images optimized
+	•	Dead code removed (tree shaking)
+	•	Source maps generated (optional)
+	•	Final index.html, bundle.js, etc. in a dist/ folder
+These files are what you deploy to a server like Netlify, Vercel, etc.
+
+** Your source code → Bundler (Vite/Webpack) → Final Build (Bundle)
+
+Features-->
+1. Virtual DOM: React uses a virtual DOM to improve performance by minimizing direct DOM manipulations.
+2. JSX: JSX stands for JavaScript XML, which allows writing HTML in React components.
+3. Components: React is component-based, meaning the UI is built using reusable components.
+4. One-way Data Binding: Data flows in one direction, making the application  easier to understand and debug.
+5. High Performance: React optimizes updates by using a virtual DOM and efficiently re-rendering components.
+6. Unidirectional Data Flow: Data flows in a single direction, which provides better control over the entire application.
+
+Bad Practices that you must avoid in react:
+
+1. Using index as key in .map()
+Why it’s bad: If items are added, removed, or reordered,
+React can’t track them correctly → leads to bugs and additional re-renders in the DOM tree
+since it detects that it is different node due to different key in the previous tree
+So, Use a unique ID as key if possible.
+
+2. Modifying state directly
+state.value = "new value"
+React won’t know the state changed = no re-render.
+Always use setState.
+
+3. Triggering side effects inside render
+function MyComponent() {
+  fetch("/api") // ❌ NEVER do this in render
+  return <div>...</div>
+}
+Bad for performance & infinite loops
+Use useEffect for side effects
+
+4. Too many re-renders by unnecessary state
+const [count, setCount] = useState(0);
+// then updating state inside effect wrongly
+useEffect(() => {
+  setCount(count + 1); // ❌ causes infinite loop
+}, []);
+Fix by avoiding state updates in render/effect unless truly needed.
+
+5. Forgetting dependency arrays in useEffect, it will run on every render
+Always add dependencies
+
+6. Creating functions or objects inline
+<Component onClick={() => doSomething()} /> // ❌ new function every render
+Use useCallback or move out of JSX if performance-critical
+
+7. Overusing Context API for everything
+React Context is not a state manager like Redux. If overused, it causes:
+Deeply nested providers
+Frequent unnecessary re-renders
+✅ Use it for global config / theme / auth only.
+
+8. Nesting too many components in one file
+Split components into smaller files if they grow too big. Easier to test, debug, and read.
+
+9. Ignoring error boundaries
+React doesn’t catch errors in children by default.
+✅ Use an Error Boundary component to catch rendering errors
+
+10. Relying too much on useRef for state
+Refs don’t cause re-renders.
+✅ Use useRef only for:
+	•	DOM access
+	•	Timer IDs
+	•	Mutable values that don’t need re-rendering
+
+Do This
+Break large components into small ones - Reusable and readable
+Use PropTypes or TypeScript	- Type safety
+Memoize heavy components (React.memo) -	Prevents unnecessary re-renders
+Keep state as local as possible - Avoids prop-drilling
+Debounce input handlers - Performance in forms and search
+
+Old Way: npx create-react-app my-app
+This used to set up a full React project with Webpack, Babel, etc.
+📉 Problems with CRA:
+	1.	Slow startup time
+	2.	Long build time
+	4.	Large bundle sizes
+	5.	Uses Webpack, which is now slower compared to modern tool
+CRA isn’t officially deprecated, but it’s outdated.
+Vite is now the preferred tool for most modern React projects.
+Vite is a next-generation frontend build tool that has replaced Create React App (CRA)
+for many developers due to its blazing-fast performance and modern architecture.
+Start time and build time is fast, easy to configure
+
+To create a vite project -->
+1. npm create vite
+2. enter project name
+3. enter the framework - react
+4. select variant - javascript + swc(speedy web compiler) --> js/ts compiler, written in rust --> superfast
+project is created
+
+To run --> cd project-folder-path
+           npm install
+           npm run dev
