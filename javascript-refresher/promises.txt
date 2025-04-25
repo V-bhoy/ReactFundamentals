@@ -1,0 +1,202 @@
+** CALLBACK HELL
+when you call too many nested callbacks which are dependent on one another, it is called callback hell.
+It is difficult to maintain and handle these callbacks.
+
+ex: api.createOrder(cart, function(){
+   api.proceedToPayment(function(){
+      api.showOrderSummary(function(){
+         api.updateWallet();
+      }
+   })
+})
+
+** INVERSION OF CONTROL
+Having a callback, loses the control of the function that we want to invoke to another function,
+which can cause unexpected behaviour since we are unaware about how the function will call the other
+function behind the scenes.
+
+here, comes promises!!
+
+** PROMISES
+- promises are used to handle asynchronous operations in javascript.
+ex: we want to create an order and then proceed to payment
+const cart = ["orange", "apple"];
+const order = createOrder(cart); // fetch api
+const payment = createPayment(order); // fetch api
+----> These two orders, createOrder and createPayment are asynchronous, and we do not know
+       how much time it will take and they are dependent on each other.
+Here, we use callbacks
+const callback = function(orderId){
+ createPayment(order)
+}
+createOrder(cart, callback)
+--> now create order API will invoke the callback to create payment API once it creates the orderId.
+--> There is an issue here, inversion of control -->
+    it can happen that callback is never called, it's called twice, we cannot trust the apis blindly.
+    It is not an efficient way.
+
+This is handled by promises, where the api returns us a promise and not take any callback func,
+
+What is a promise ?
+It is an object that has a data (result) property which will hold what the api returns to us and the
+state of the promise.
+This api is an async operation, and we do not know how much time, it will take.
+This data is initially undefined, and at some point later, it holds the result returned by the api.
+But when it is undefined, the JS engine continues to execute the program synchronously
+and in between that this data property is replaced automatically.
+After the promise is fulfilled, then() on it is used to invoke the callback function which will be called
+automatically once the data is filled. The callback as well returns a promise.
+ex: const promise = createOrder(cart)
+    promise.then(callback)
+Here, the control of invoking the callback is not with the other function now.
+The callback is invoked only when the data, is returned by the ap,i and it will invoke it only once.
+
+What are the states of the promises?
+Initially when the data is undefined, the promise is in a pending state
+As soon as the data is received, the promise state is changed to fulfilled state
+We can use the data in our callback as well
+promise.then((data)=>console.log(data));
+There are 3 States --> pending , fulfilled & rejected.
+Promise objects are immutable in nature.
+
+Promise --> an object that represents an eventual completion/ failure of an asynchronous operation.
+So when we want to have multiple asynchronous operations
+to happen one after the other, we will end up linking multiple .then() functions with the callbacks
+on the promises which is nothing but a promise chain.
+When we create a promise chain, we should keep in mind to return the promise from the callback because
+the data will flow properly the chain only when the promise is returned
+ex:  const promise = createOrder(cart)
+     promise.then((data)=>{ return callback()}).then((data)=> {return callback()}) and so on..
+The promise chain helps us to maintain the callbacks solving the problem of callback hell.
+
+** Creating a promise
+How does the api returns a promise to the consumer.
+ex: api createOrder(cart) --> returns orderId
+    how do we design it to return a promise?
+
+function createOrder(cart){
+   // we create a promise object using the new keyword followed by the Promise constructor.
+   // The constructor takes a function parameter with params --> resolve, reject
+   const promise = new Promise(function(resolve, reject){
+       // we handle the logic over here to create the order and we can either resolve or reject this promise
+       if(!validateCart(cart)){
+           // we reject the promise using reject function with an error
+           const error = new Error("The cart is not valid");
+           reject(error) --> when the promise is rejected it will throw error
+       }else{
+          const orderId = DB.callSomeFunc(cart);
+          // once we have the data, we will resolve the promise by passing the result
+          resolve(orderId);
+       }
+   })
+   return promise;
+}
+const promise = createOrder(cart).then((orderId)=>console.log(orderId));
+--> This is how the data (orderId) will passed on to then() when promise is resolved/fulfilled
+--
+--> Similarly when the promise is rejected, it will throw an error, which we need to handle in
+     our program.
+     We can handle it using catch() after then() which take a callback for handling errors gracefully
+const promise = createOrder(cart).then((orderId)=>console.log(orderId)).catch((err)=>console.log(err.message));
+
+When you build a promise chain , and a catch block at the bottom, it will catch any error
+if thrown in any of the promise, and it will not move further.
+What if you want to invoke a callback function if the error is thrown in a promise chain?
+In such cases, ypu can just add the catch black in between of the promise chain, which will handle
+errors thrown from the promises above it and continue with the callbacks attached to the then()
+after it.
+ex. createOrder(cart)
+       .then((orderId)=>{console.log(orderId); return orderId;})
+       .catch((err)=>console.log(err.message)) // this block will catch error only for the callbacks attached above it
+       .then((orderId)=>preparePayment(orderId)) // these will be executed even if the error is caught
+       .then((payment)=>console.log(payment))
+       .catch((err)=>console.log(err.message))
+
+** PROMISE APIs
+
+1. Promise.all()
+   - it is used to handle multiple promises together
+   - it takes an array of promises as input which is an iterable
+   ex: Promise.all(p1, p2, p3)
+       Suppose p1 take 3s to resolve, p2 takes 1s to resolve and p3 takes 2s to resolve
+   case 1: All promises are resolved.
+           Output --> array of results ==> [val1, val2, val3]
+                      we do not get objects here like in Promise.allSettled() with status.
+                      total time ==> 3s , it will be executed in parallel, but it will wait for all
+                      promises to finish.
+   case 2: Any one of the promise is rejected
+           Suppose p2 is rejected after 1s
+           Output ==> Error is thrown after 1 sec, it will not wait for other promises to be resolved / rejected
+           Promise.all() is completely rejected. The other promises are left on their state.
+           We need to handle this error.
+
+   This is not a good case, we still want other promises, even if one is rejected
+   In this case, we have one more API --> Promise.allSettled([p1,p2,p3])
+
+2. Promise.allSettled()
+   case 1: All promises are resolved.
+           Output ==> array of results. It will wait for all promises to resolve and then return the output.
+   case 2: Any one of the promise is rejected
+           what happens? I t will wait for all promises to settle (either resolve/reject)
+           Irrespective of the errors it will give output -->
+           [{status: "fulfilled", value: val1}, {status: "rejected", reason: err2}, {status: "fulfilled", value: val3}]
+
+3. Promise.race()
+   - it gives the value of the first settled promise either resolve/reject
+   - if the first promise is resolved it will return value or throw err if rejected, this error needs to be handled.
+   - it will not wait for other promises to finish, it will quickly return the result.
+
+4. Promise.any()
+   - it will wait for the first promise to be resolved and return the value of first resolved promise.
+   - Even if any promise is rejected first , it will wait for the other promises to resolve first, the error is not thrown
+   - What if all promises are rejected?
+     The returned result is an AggregateError: All promises are rejected.
+     When you do err.errors in the catch handler, that time you will see an array of errors
+     [err1, err2, err3]
+
+** async, await
+
+A function defined with async keyword is an async function.
+How is it different from a normal function?
+- It always return a promise.
+- Even if you return some value / data, it will wrap it inside a promise and then return it.
+
+How to fetch data from the promise?
+- Use a then() that takes a callback function having data.
+ex. dataPromise().then(res=>console.log(res));
+
+==> The combination of async and await is used to handle promises.
+await is a keyword that can only be used inside an async function otherwise it gives a syntax error.
+It is used ahead of a promise which is used to resolve the promise and return the value
+
+What is the main difference ?
+When we use promise normally, without async await, JS engine does not wait for the promise to resolve,
+instead it will execute the further code
+When you use await inside an async function, it waits until the promise is resolved before executing
+the further code. But in reality JS engine does not wait, it just pretends to wait.
+
+BEHIND THE SCENES:
+When an async function is invoked, an execution context is created, it sees that there is a promise
+that's need to be resolved, so it will suspend the execution context and the call stack becomes empty.
+As soon as the promise handler is resolved, the promise appears in the call stack abd the control
+will execute from where it left when the execution was suspended.
+
+What happens when there are 2 await functions.
+It will wait for the first one to resolve after the execution context is suspended and
+then looks after the second one.
+You can demonstrate the behaviour in promise.js file
+
+Error handling in async await:
+- use try catch block when use await with the promises.
+- use catch handler when invoking async function
+
+fetch() API ?
+- it is a web API that connects to the server and returns a Response object that is a readable stream.
+- this response object is converted to json using .json() which again returns a promise
+- after resolving this promise we get the actual data.
+const response = await fetch(url);
+const data = await response.json();
+
+
+
+

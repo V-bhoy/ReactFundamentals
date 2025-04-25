@@ -1,0 +1,347 @@
+- objects are composite data types used to represent real-world
+entities or concepts.
+- Objects are containers that store related data and functions together as
+  properties and methods.
+- Objects can be instantiated using two different approaches: object literals or
+  constructor functions.
+
+** Object literal
+- Object literals consist of key-value pairs enclosed in curly braces {}.
+- Each key-value pair represents a property, where the key is the property
+  name and the value is the property value.
+- Properties can hold various data types, including strings, numbers, booleans,
+  arrays, or even other objects.
+With the ES6 method definitions, we can directly define methods within the object
+literal without using the `function` keyword. The functionality remains the same as
+in the previous example.
+
+--> const obj = {....}
+Adding a property = dot, bracket or spread operator
+
+When a method is extracted from an object and is called standalone, the value of "this" keyword
+depends on how the function is caled
+strict mode --> undefined
+non-strict mode --> global object
+using object reference --> object.method() --> object
+
+** Create object using constructor function
+- Object literals have their limitations when creating multiple objects with similar
+  properties and behaviors. Each object created with an object literal has its
+  own properties and methods, resulting in duplicated code and inefficiency.
+- Constructor functions address this limitation by providing a blueprint for
+  creating multiple objects with shared properties and methods.
+- By defining a constructor function, we can instantiate new objects that inherit
+  properties and methods from the constructor's prototype.
+- This approach promotes code reusability, reduces redundancy, and enables
+  efficient object creation.
+SYNTAX: function Person(name, age){
+   this.name = name,
+   this.age = age,
+   this.greet = function(){
+     console.log(`Hello, my name is ${this.name}, and I am ${this.age} years old.`)
+   }
+}
+1. Inside the constructor function, the 'this' keyword refers to the object being
+created.
+2. 'this' allows access to and assignment of object properties within the function.
+---------------------
+1.To create an object instance, the constructor function is invoked using the 'new'
+keyword.
+2. The "new" keyword creates a new object and binds 'this' to that object inside
+the constructor function.
+const person1 = new Person("James", 24);
+const person2 = new Person("Amy", 21);
+person1.greet() ==> Hello, my name is James, and I am 24 years old.
+person2.greet() ==> Hello, my name is Amy, and I am 21 years old.
+
+** PROTOTYPE
+1. Every function in JavaScript has a special property called prototype (constructor & reference to ita parent prototype).
+   This is used when the function is used as a constructor.
+2. prototype is an object that will become the __proto__ of all instances created by the constructor
+3. JavaScript objects can inherit from other objects. It has a reference to its parent prototype
+   using __proto__ property.
+4. If JavaScript can’t find a property on an object, it will look into the prototype of its parent.
+   If it doesn't find there it will go up the chain.
+5. The hierarchy where the object inherits properties from another object through the reference of its
+   parent prototype is called prototype chain.
+6. Prototypal Inheritance is when one object inherits from another via the prototype chain.
+
+Example: function Person(name) {
+           this.name = name; // instance property
+           this.sayHi = function() {  // instance method (not shared!)
+             console.log("Hi, I'm " + this.name);
+           };
+         }
+
+         const p1 = new Person("Alice");
+         const p2 = new Person("Bob");
+For p1, a new object is created.
+name and sayHi are created fresh for each object.
+- That means:
+p1.sayHi !== p2.sayHi → Different memory locations!
+Even though the function code is the same, the memory is not shared.
+Wastes memory if you’re creating many objects with the same method
+
+function Person(name) {
+  this.name = name; // instance property
+}
+Person.prototype.sayHi = function() {
+  console.log("Hi, I'm " + this.name);
+};
+1. name is still created separately for each object — because it’s in the constructor.
+2. But sayHi is defined once in Person.prototype.
+3. Both p1 and p2 reference the same function in memory.
+- You can define variables on the prototype: These are shared, not copied among all instances.
+- So it’s okay for constants or shared values, but not recommended for mutable data (like arrays or objects)
+
+** ARRAY PROTOTYPE
+- Arrays in JavaScript are also objects, and therefore have a prototype. The
+  `Array.prototype` object contains properties and methods that are available to all
+  arrays created from the `Array` constructor function.
+- The methods that we use on arrays like map, filters etc. are defined in Array prototype
+  which are shared across all instances of array.
+
+** Object.create()
+- The `Object.create()` method creates a new object and sets the specified
+  object as its prototype.
+- It provides a way to create objects that inherit properties and methods from a
+  prototype object.
+- This is used for inheritance and prototype chaining.
+const parent = {
+  greet() {
+    console.log("Hello!");
+  },
+};
+const child = Object.create(parent);
+child.name = "Vaishali";
+console.log(child.name); // Vaishali
+child.greet();           // Hello! (inherited from parent)
+child doesn’t have greet() directly, but it can access it via prototype chain (__proto__).
+
+** Object.assign()
+•	It copies properties from one or more source objects to a target object.
+•	It does not set up any prototype chain.
+const obj1 = { a: 1 };
+const obj2 = { b: 2 };
+const combined = Object.assign({}, obj1, obj2);
+console.log(combined); // { a: 1, b: 2 }
+•	It performs a shallow copy.
+•	If keys collide, the last one overrides the earlier ones.
+•	It’s useful for merging objects, not for inheritance.
+- The primitives are copied by value and the non primitives are copied by reference
+
+** Object Destructuring
+It is a convenient way to extract values from an
+object and assign them to variables. It allows you to access and unpack properties
+from an object in a concise and structured manner.
+SYNTAX:  const {prop1, prop2, ...} = obj
+1. Variable Assignment: Object destructuring enables you to assign object
+properties to variables with the same name
+2. Renaming Variables: You can assign object properties to variables with
+different names using the colon (:) syntax. This can be useful when the
+variable name conflicts with another identifier.
+ex. const {name: fullName} = person;
+3. Default Values: Object destructuring allows you to assign default values to
+variables if the corresponding object property is undefined
+ex. const {name: fullName, age , city = "Unknown"} = person;
+
+** Array Destructuring
+it provides a concise way to extract values from an array and assign them to variables.
+1. Variable Assignment: Array destructuring allows you to assign array
+   elements to variables based on their order.
+ ex. [a,b,c] = [1,2,3]
+ 2. Ignoring Elements: You can skip elements in the array by leaving empty
+ slots (commas) in the destructuring pattern.
+  ex. [a,,c] = [1,2,3]
+ 3. Rest Syntax: The rest syntax (...) allows you to capture the remaining
+    elements of an array into a new array.
+ ex. [first,...rest] = [1, 2, 3]
+   first = 1, rest = [2,3]
+ 4. Default Values: Array destructuring supports default values as well, which
+ are assigned if an array element is undefined.
+ ex. [a = 0,b = 0,c] = [1,2,3]
+
+ Rest operator ==> collect remaining arguments into a single array.
+ used in parameters or array destructuring
+
+ Spread operator ==> it spreads out values.
+ used as argument, when calling functions or when creating new array / object
+
+** apply(), call(), bind() -->
+These methods allow you to manually set the value of "this" keyword.
+In JavaScript, the value of this depends on how a function is called, not where it’s defined.
+So if we extract a method from an object, this can get lost.
+const user = {
+  name: "Vaishali",
+  greet: function() {
+    console.log(`Hi, I am ${this.name}`);
+  }
+};
+user.greet(); // ✅ "Hi, I am Vaishali"
+const sayHi = user.greet;
+sayHi(); // ❌ "Hi, I am undefined" (because `this` is now undefined)
+
+✅ call() — Calls the function immediately, with a specific this
+sayHi.call(user); // ✅ "Hi, I am Vaishali" , this will refer to the user object
+	•	First argument is the object to use as this
+	•	Then, you can pass function arguments (if any)
+ex: function greet(place) {
+      console.log(`${this.name} says hi from ${place}`);
+    }
+    const person = { name: "Vaishali" };
+    greet.call(person, "CodeSip");
+    // ✅ "Vaishali says hi from CodeSip"
+
+✅ apply() — same as call, only difference is we pass the arguments in array
+
+✅ bind() — Returns a new function with this fixed
+ex: const boundHi = sayHi.bind(user);
+    boundHi(); // ✅ "Hi, I am Vaishali" --> this function is reusable
+	•	bind does not call the function immediately
+	•	It returns a new function with this permanently bound to your object
+
+Feature	  call()	                        apply()	        bind()
+Purpose	  Calls function with this value	Same as call()	Returns a new function with this
+Executes function?	✅ Yes	                ✅ Yes	        ❌ No (returns a function)
+Argument format	 Comma-separated args: a, b	Single array: [a, b]	Comma-separated or pre-set later
+Returns	       Return value of the function	Return value of the function	New function with bound this
+
+ES6 --> CLASSES
+
+What is a class ?
+Classes in JavaScript provide a convenient and object-oriented way to define and
+create objects with similar behavior and properties.
+Classes also provide a more concise and consistent syntax for working with inheritance.
+
+A class declaration defines a new class using the `class` keyword. It consists of a
+class name and body containing constructor and method definitions.
+class A {
+  constructor(){
+    this.first = "xyz";
+  }
+
+  // this is prototypal method
+  sayHi(){
+    console.log("hi");
+  }
+}
+
+Constructor: The constructor method is a special method used for initializing
+class instances. It is invoked automatically when a new object is created from
+the class. It is defined using the `constructor` keyword.
+Methods: Methods are functions defined within a class. They are shared by
+all instances of the class and can be accessed through the instance objects.
+Methods do not require the `function` keyword.
+
+Similar to function expressions, classes can also be defined using class expressions.
+Class expressions can be named or unnamed.
+
+- Unlike function declarations, class declarations are not hoisted. They need to
+be declared before they are used. Class expressions, on the other hand,
+behave like variables and can be hoisted.
+
+- When using classes, the `use strict` directive is implicitly applied,
+ensuring a stricter mode of JavaScript execution within the class.
+
+** Encapsulation
+- promotes data hiding and ensures that the internal implementation details of
+  an object are inaccessible from outside the object.
+- Encapsulation using private properties and methods with the `#` symbol
+  provides a more robust and secure approach to object-oriented programming
+  in JavaScript, enabling better data protection, code organization, and
+  controlled access to internal functionality.
+- The `#` symbol before a property name in a class or object denotes that the
+  property is private and cannot be accessed or modified from outside the class
+  or object. It restricts direct access to the property, providing encapsulation.
+
+ex: class MyClass {
+  #privateProperty = 42;
+  #privateMethod(){
+    return "This is a private method";
+  }
+}
+const obj = new MyClass();
+obj.#privateProperty --> syntax error
+obj,#privateMethod() --> syntax error
+They can only be accessed and invoked from within the
+class itself, not from outside.
+
+How to access and modify these private properties --> using getters & setters
+ex: class MyClass {
+  #privateProperty = 42;
+  get privateProperty(){
+    return this.#privateProperty;
+  }
+  set privateProperty(arg){
+    this.#privateProperty = arg;
+  }
+}
+const obj = new MyClass();
+console.log(obj.privateProperty) --> no error
+obj.privateProperty = "xyz "--> set the prop, no error
+
+** Inheritance
+- it allows
+  objects to inherit properties and methods from a parent class. It enables code
+  reuse, promotes code organization, and facilitates the creation of specialized
+  subclasses.
+-  inheritance can be achieved using the `super` keyword, the
+  `extends` keyword, and function overriding.
+
+The `extends` keyword is used to create a child class that inherits from a
+parent class in JavaScript. It establishes a hierarchical relationship between
+classes, allowing the child class to inherit the properties and methods of the
+parent class.
+The `super` keyword is primarily used within the constructor of a child class
+to call the constructor of the parent class. It enables the child class to access
+and initialize properties defined in the parent class.
+The `super` keyword can also be used to call
+other methods defined in the parent class, not just the constructor.
+Function overriding is the ability of a child class to provide a different
+implementation for a method that is already defined in its parent class.
+When a child class overrides a method, the implementation in the child class
+is executed instead of the parent class's implementation.
+
+Inheritance in constructor functions ==>
+To implement inheritance in constructor functions, the `prototype` property
+is used to define shared properties and methods that will be inherited by all
+instances of the class. The `prototype` object of the parent constructor
+function is assigned to the `prototype` property of the child constructor
+function, creating a prototype chain.
+function Parent(make){
+ this.make = make;
+}
+Parent.prototype.start = function(){
+  console.log("Started")
+}
+function Child(make, prop){
+  Parent.call(this, make);
+  this.prop = prop;
+}
+Child.prototype = Object.create(Parent.prototype);
+
+** static keyword
+The `static` keyword is used to define static properties and methods within
+a class. Static members are associated with the class itself rather than its
+instances
+They are accessed using the class name followed by the dot notation.
+Static properties are not accessible through instances; they are only accessible through the
+class itself.
+Static methods can only use static properties and methods inside it. They are not inherited.
+
+** Shallow and Deep Copy:
+- A shallow copy creates a new object or array and copies the references of the
+  original values. This means that if the original object contains nested objects or
+  arrays, the shallow copy will still reference the same nested objects or arrays.
+- The spread operator (`...`) can be used to create a shallow copy of an
+  array or object. Shallow copy only affects the first layer of the object or array. If there are
+  nested objects or arrays, they will still be referenced, and modifying them in
+  the shallow copy will affect the original object or array.
+- The `Object.assign()` method can be used to create a shallow copy of an
+  object.
+
+- A deep copy creates a completely new object or array with its own set of values. Any
+  changes made to the deep copy will not affect the original object or array, and vice
+  versa.
+- The combination of `JSON.stringify()` and `JSON.parse()` can be used
+  to create a deep copy of an object or array.

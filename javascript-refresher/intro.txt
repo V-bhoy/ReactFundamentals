@@ -17,6 +17,20 @@ How it works ?
 - Javascript helps change HTML and CSS on the page without needing to send the request and reload it again.
 - It is also used on server side using Node.js
 
+** JAVASCRIPT RUNTIME ENVIRONMENT (JRE)
+- It describes the environment in which JavaScript code is executed.
+- It includes the JavaScript engine, call stack, heap, web APIs, and callback queues.
+- The JavaScript engine is the component responsible for interpreting and
+  executing JavaScript code. Popular engines include Google's V8 engine used
+  in Chrome and Node.js, Mozilla's SpiderMonkey, and Apple's JavaScriptCore.
+- The heap is the memory space the JavaScript engine uses to store objects
+  and values created by the code.
+- Web APIs are interfaces provided by the browser environment that allows
+  JavaScript to interact with browser features. These APIs include the alert(),
+  confirm(), prompt(), and setTimeout() and setInterval() methods.
+- Callback queues and the event loop are used to manage asynchronous code
+  execution in JavaScript.
+
 - JavaScript is single-threaded, meaning it runs one task at a time.
 
              🧵 MAIN THREAD (Call Stack)
@@ -28,31 +42,97 @@ How it works ?
   │  (Browser) │      │  Queue      │      │              │
   └────────────┘      └─────────────┘      └──────────────┘
 
-- There is a main thread (execution thread) having its own call stack
+Everything in javascript runs in an execution context.
+What is it?
+- it is a container that holds information about the current state of code being executed
+- There are two important components of an execution context: the Variable
+  Environment and the Thread of Execution.
+1. Variable Environment ==> holds all the variables, functions, and parameters accessible within
+                            a given scope. It also includes a reference to the outer
+                            environment, which is the variable environment of the parent scope.
+2. Thread of execution ==> It is the sequence of code execution that is currently being executed. It keeps track
+                           of the current executing instruction.
+
+- There is a main thread (execution thread) having its own call stack which is used by JavaScript to keep track
+of function calls and their corresponding execution contexts.
 - Whenever a js file is executed
-- A global execution context is created in it.
-- It is created in two phases -->
-- Creation phase: it allocates memory to all declared variables and functions.
-  In case of variables it stores undefined and for functions it stores the code as it is
-- Code execution phase: the variables are assigned with their actual values.
-  Whenever a function is invoked, a new execution context is created in the execution thread,
-   and it will be destroyed after the function is executed.
+- A global execution context is created in it which is a default environment where the JS code is executed.
+- The execution context is created in two phases -->
+- Creation phase: The variable environment is set up. It allocates memory to all declared variables and functions.
+  In case of variables it stores undefined and for functions it stores the code as it is alon with a reference to
+  it parent variable environment else null
+- Code execution phase:
+  1. The javascript engine executes the code line by line within the thread of execution.
+  2. It uses the variable environment and the variables are assigned with their actual values
+     in the order they are declared.
+     Whenever a function is invoked, a whole new execution context belonging to the function
+     is created in the call stack,
+     and it is destroyed after that function is completely executed.
 - After the program completely executed, the global execution context destroyed.
-- And then the stack of the main thread becomes empty.
+- The global execution context creates when the JavaScript program starts running
+  and stays in memory until the program ends.
+- And then the call stack becomes empty.
 - The execution context are independent of each other, it occupies its own memory and maintains its own
   execution stack which keep track of the execution
 
-Whenever a global execution is created,
-it creates a global object which is nothing but window object in case of browsers.
-This global object has many inbuilt window methods and all the variables and functions
-that are defined globally within the program that means outside any kind of block.
-"this" keyword is a reference to this global object.
+Whenever a global execution is created (in its creation phase),
+- it creates a global object which is nothing but window object in case of browsers.
+- serves as the outermost object in the environment.
+- This global object has many inbuilt window methods and all the variables and functions
+  that are defined globally within the program that means outside any kind of block.
+- The "this" variable is created and assigned to the window object.
+  It represents the context in which the current code is executing.
+  "this" keyword is by default a reference to this global object.
+- Hoisting takes place, where variable and function declarations are
+  moved to the top of their respective scopes before the code is executed.
+  This allows you to use variables
+  and functions before they are formally declared in the code.
+- After hoisting, the engine allocates memory for variables
+  and functions, preparing them for later use during the execution phase. It's
+  important to note that the way variables are allocated, their initial values
+  can vary depending on the type of declaration.
+- Variables declared with var is assigned the default value of undefined.
+- let and const variables are assigned the initial value of undefined within the TDZ (Temporal Dead Zone).
+
+Whenever a local execution context is created (due to function call):
+- It serves as a separate environment for the function's execution.
+- Firstly, the local execution context defines the "this" variable. The value of
+  this is determined based on how the function is invoked. If the function is
+  called in the global scope or without any specific context, this will be
+  assigned the global `window` object. However, in strict mode, this will be
+  undefined in such cases.
+- Additionally, the local execution context includes the creation of the
+  `arguments` object. This object is available within the function and contains a
+  list of all the arguments passed to it
+- memory allocation takes place similar to the global execution context.
+- The function logic is executed in its thread of execution, once it is completed,
+  the local execution context is removed from the memory.
+
 
 What is HOISTING?
 It is JavaScript’s behavior of moving variable and function declarations
 to the top of their scope (either global or function scope) before the code is executed.
 But only the declaration is hoisted, not the assignment.
-Behind the scenes, only the memory has been allocated in the global object.
+- var is hoisted, and you can use it before declaration.
+  console.log(a); // undefined, only the declaration is hoisted i.e var a, not the assignment
+  var a = 10;
+- Function declarations are fully hoisted, including the function body.
+  sayHi(); // ✅ Works!
+  function sayHi() {
+    console.log("Hello!");
+  }
+- function expressions are hoisted as a variable (declared), but not as a function (not assigned yet).
+  greet(); // ❌ TypeError: greet is not a function, its value is undefined
+  var greet = function() {
+    console.log("Hi!");
+  };
+-  let and const are also hoisted, but they stay in a “Temporal Dead Zone” (TDZ)
+   ensuring that they are not
+   accessible before their actual declaration in the code.
+   console.log(b); // ❌ ReferenceError!
+   let b = 20;
+Generally, it's best practice to always declare variables and functions before using
+them to avoid unexpected behavior due to hoisting
 
 ** VARIABLES
 - it is a reference to the data that is stored in the memory
@@ -60,58 +140,90 @@ Behind the scenes, only the memory has been allocated in the global object.
 - It is declared using three keywords ---> var, let & const
 1. var
 - it is function scoped
-- You can redeclare and reassign a variable with keyword var
+- You can redeclare and reassign a variable with keyword var in the same scope
 - Declaring and assigning is not mandatory at the same time, you can declare first and then assign or vice versa
-- you can use it before declaration
+- you can use it before declaration due to hoisting
+- Because of hoisting, var can lead to bugs in code if not used properly.
+- However, it's important to note that var has two scopes: global scope and
+  functional scope. Variables declared with var in the global scope are
+  accessible throughout the entire program, while variables declared with var
+  inside a function are only accessible within that function.
 2. let
 - It is block scoped
-- You can reassign the variables with let keyword but not redeclare.
+- You can reassign the variables with let keyword but not redeclare in the same scope.
 - Declaring and assigning is not mandatory at the same time,
   Also you cannot assign value before declaration. You need to declare first.
-- You cannot use it before declaration, you get a reference error
+- You cannot use it before declaration, you get a reference error due to TDZ.
+- let is stricter than var and helps avoid bugs caused by variable hoisting
+
 3. const
 - It is block scoped
 - You cannot reassign or redeclare the variables with const keyword
 - Declaring and assigning is  mandatory at the same time.
-- You cannot use it before declaration, you get a reference error
+- You cannot use it before declaration, you get a reference error .
+- const is used to declare read-only variables / for declaring constants that should not be changed throughout
+  the program.
 
-- var is hoisted, and you can use it before declaration.
-console.log(a); // undefined
-var a = 10;
-
-- let and const are also hoisted, but they stay in a “Temporal Dead Zone” (TDZ) from the start of the block until their declaration.
-  You can’t use them before declaration.
- console.log(b); // ❌ ReferenceError!
- let b = 20;
-
-- Function declarations are fully hoisted, including the function body.
-sayHi(); // ✅ Works!
-function sayHi() {
-  console.log("Hello!");
-}
-
-- function expressions are hoisted as a variable (declared), but not as a function (not assigned yet).
-greet(); // ❌ TypeError: greet is not a function, its value is undefined
-var greet = function() {
-  console.log("Hi!");
-};
+You cannot access let & const variables using this or window object, it will give you undefined because
+they do not exist in global object.
 
 ** undefined vs not defined ?
-undefined --> it is the placeholder for the value of the variable which is not yet assigned but declared
-not defined --> it is a reference error that occurs when we try to access a reference
-which is not declared, that is memory is not allocated, not present in the memory.
-Assigning undefined to a variable is a bad practice because it has a specific purpose
+undefined -->
+- indicates the absence of a value.
+- It is a primitive type and is assigned to a variable when it is declared but not initialized with a
+  value or when a function does not return anything
+- Assigning undefined to a variable is a bad practice because it has a specific purpose.
+not defined -->
+- is a state of a variable that has not been declared at all.
+- If you try to access such a variable, JavaScript throws a ReferenceError exception
+  because it is not present in the memory.
+
+** STRICT MODE
+- Strict mode in JavaScript is a feature introduced in ECMAScript 5 (ES5) that
+  allows developers to opt into a stricter set of rules and best practices for
+  writing JavaScript code.
+- When strict mode is enabled, the JavaScript interpreter enforces a more
+  strict set of rules, catches common mistakes, and disables certain silent
+  errors.
+- Strict mode can be enabled for an entire script or a specific
+  function. 'use strict' --> mention this at the beginning of the script / function body
+
+** What is TEMPORAL DEAD ZONE?
+   let and const are stored in a different memory space other than global.
+   The time period from the variable declaration to its initialization with a value is known
+   as temporal dead zone
+   When you try to access the variables in a temporal dead zone, it gives reference error
+   We cannot access let and const variables in the TDZ. var is not affected because it is function
+   scoped and is available throughout the function.
+   To avoid temporal dead zone, push the declared/initialized variables at the top of the scope
+   before they are accessed, making the window shrink to zero.
 
 ** SCOPE ==> it is the area where a variable/functions is accessible
 There are three main types of scope in JavaScript:
 1. Global Scope - accessible anywhere but which are declared outside the block
 2. Function Scope - Variables declared inside a function — only accessible inside that function
-3. Block Scope - Variables declared with let or const inside {} — accessible only inside that block
-SCOPE CHAIN --> When JavaScript can’t find a variable in the current scope,
-it goes up the chain — from child to parent — until it finds it or reaches global.
-
+3. Block Scope - Variables declared with let or const inside {} — accessible only inside that block.
 BLOCK --> defined using {} which combines multiple statements together as one unit
       ---> we can use it where Js is expecting a single statement ex. if(condition) single statement / block
+
+What is lexical environment ?
+- it is a concept used internally by JavaScript to track variables and functions.
+- it refers to the variable environment of context in which the code is being executed.
+  It contains all the variables/functions declared in that scope and a reference to its parent environment
+  This is how the scope chain is built — by following these parent references.
+- A fresh lexical environment is generated whenever a function is called or
+  invoked in JavaScript.
+SCOPE CHAIN (lexical scoping) -->
+1. allows a function to access variables from its outer (enclosing) lexical
+   environment as well as from the global scope.
+2. This means that functions can access variables defined in their parent
+   functions, grandparent functions, and so on, all the way up to the global
+   scope.
+3. When JavaScript can’t find a variable in the current scope,
+it goes up the chain — from child to parent, — until it finds it or reaches global.
+It's important to note that scope chaining only works in one direction, from inner
+to outer, and not the other way around. That means variables defined in an inner
+scope cannot be accessed from an outer scope.
 
 What is shadowing ?
 Shadowing happens when a variable in an inner scope has the same name as a variable in an outer scope,
@@ -137,22 +249,6 @@ ex.let a = 10;
      var a = 10; // var is crossing the boundaries and interfering with let, which violates shadowing
      If we use function instead of block here, then it is valid
    }
-
-What is lexical environment ?
-it is a concept used internally by JavaScript to track variables and functions.
-Each time a function runs, JavaScript creates a Lexical Environment object with it, which contains:
-All variables/functions declared in that scope and a reference to its parent environment
-This is how the scope chain is built — by following these parent references.
-
-What is temporal dead zone?
-let and const are stored in a different memory space other than global
-The time period from the variable declaration to its initialization with a value is known a
-as temporal dead zone
-When you try to access the variables in a temporal dead zone, it gives reference error
-We cannot access let and const variables using this or window object, it is not present there
-you get undefined
-To avoid temporal dead zone, push the initialized variables at the top of the scope
-making the window shrink to zero
 
 ** data types ->
 - Primitive —> number, string, boolean, undefined, null, Symbol, bigInt

@@ -1,7 +1,10 @@
 ** CLOSURES
-A closure is when a function remembers the variables from the scope in which it was created,
+- A closure is when a function remembers the variables from the scope in which it was created,
 even after that outer scope is gone.
-A function bind with its parent lexical environment forms a closure.
+- A function with its parent's lexical environment forms a closure.
+- It retains the reference to the environment in which it was created,
+allowing the function to access and manipulate variables in that environment,
+even when the outer function is gone.
 
 ex. function x(){
    var a = 20;
@@ -10,9 +13,9 @@ ex. function x(){
    }
    return y;
 }
-var z = x(); // the function here is returned along with its lexical scope, and a here is the reference, it exists
-z() --> 20              in the memory
-
+var z = x(); // the function here is returned along with its lexical scope,
+               and a here is the reference, it exists in the memory
+z() --> 20
 
 USES:
 1. Module Design Pattern
@@ -34,21 +37,277 @@ function z(){
 z()() --> 10, 20, 30
 here y forms a closure , it remembers the variables of its parent even when the scope of z does not exist
 
-Example for data hiding & encapsulation ->
- var count = 0;
- function increment(){
-   count++;
- }
-here count can be modified by anyone
-
-function counter(){
-   var count = 0;
-   return function increment(){
-      count++;
-   }
+Example:
+function outer(){
+  var count = 0;
+  function inner(){
+    count++;
+    console.log(count);
+  }
+  return inner;
 }
-counter()() --> here increment forms a closure along with the count variable
-And count is not accessible since it is inside a function scope.
+const counter = outer();
+counter() // 1
+counter() // 2
+counter() // 3
+The inner function here forms a closure --> it is a function with its lexical(parent) scope.
+the inner function retains a reference to the count variable in the environment
+where it was created (inside the outer function).
+So even when the outer() does not exist, it still remembers the variables in its scope
+because it maintains a reference to its lexical scope.
+
+* FUNCTION STATEMENT (FUNCTION DECLARATION) -->
+- normal function that is defined with its body -->
+  function func(){...}
+- It is fully hoisted and can be called even before it is declared.
+
+1. FUNCTION EXPRESSION
+- A function expression involves assigning a function to a variable or a property
+  of an object.
+- Function expressions are not hoisted because it is treated as a variable
+  and hence you cannot call them before it is assigned in the execution phase.
+- They can be anonymous (without a name) or named
+- Function expressions are often used to create functions on the fly, as
+  arguments to other functions, or to encapsulate code within a specific scope.
+- Examples: anonymous functions, arrow functions, and immediately invoked function expressions (IIFE).
+
+DIFFERENCE BETWEEN FUNCTION STATEMENT & EXPRESSION ---> HOISTING
+
+** Anonymous function -
+- nameless function or function expression, is a function that is defined without a specified name.
+- you cannot use it standalone otherwise it gives you a syntax error since function statements cannot be nameless.
+- Instead, it is assigned to a variable as its value or used as an argument/returned directly within the function.
+- Anonymous functions are useful when you need to define a small function for
+  a specific task without the need for a named function declaration.
+
+** Named function expression -
+- the function assigned to a variable but has a name
+var a = function xyz(){...}
+console.log(xyz) --> reference error
+Function xyz exists only inside the function’s own scope.
+You cannot use outside it, you need to use the variable to call it
+If you do --> var a = function xyz(){ console.log(xyz) } --> this will print the function.
+- used for debugging with more readable stack traces and in recursion calls within itself.
+
+** Immediately invoked function expression -
+- a JavaScript design pattern that allows you to execute a function immediately after its declaration.
+(function() {
+// Function body
+})();
+Benefits of using IIFE:
+a. Encapsulation: IIFEs create a separate scope for variables and functions,
+avoiding global scope pollution. This helps prevent naming conflicts and
+provides a way to encapsulate code and data.
+b. Privacy: Variables and functions declared inside an IIFE are not accessible
+outside the function, creating privacy and protecting them from external
+interference.
+c. Modularization: IIFEs can be used to create self-contained modules,
+allowing you to define and expose only specific properties or methods to the
+outer world.
+d. Isolation: IIFEs provide a level of isolation, allowing you to define
+temporary variables and execute code without affecting the global state or
+interfering with other parts of the application.
+
+** Arrow function -
+- An arrow function is a concise syntax introduced in ES6 for defining functions.
+  It offers a more compact and expressive way to write functions, particularly for
+  one-liners.
+- Arrow functions have an implicit return feature. The return
+  statement is not required if the function body consists of a single expression.
+  The result of the expression is automatically returned
+- Arrow functions can have zero or more parameters.
+  When there is only one parameter, the parentheses around the parameter can
+  be omitted. For multiple parameters, parentheses are required
+
+** First class function -
+- The functions that are defined  as values to a variable, passed as an argument or returned as a value
+  from a function are first class functions.
+
+2. CALLBACK FUNCTION
+- a callback function is a function that is passed as an argument to
+  another function.
+- Why we call them callback? Because we expect that function to be executed sometime later in our
+  execution in response to an event / an asynchronous operation.
+- Since javascript is synchronous and single threaded, it provides a way to perform operations asynchronously
+  without blocking the execution of the main thread.
+- A function is not executed immediately when it is passed as a
+  callback. Instead, it is stored and executed later when the conditions are met.
+example: setTimeout() takes a callback function that is executed only after the particular delay.
+* Callback functions are commonly used in
+  asynchronous programming to handle tasks that may take some time to
+  complete, such as reading data from a file, making an HTTP request, or
+  processing a database query.
+* Callback functions are used to respond to events in web
+  development, such as button clicks, form submissions, or user interactions.
+  The callback function is triggered when the event occurs
+
+#### EVENT LOOP ######
+1. The javascript engine has the call stack where it handles execution of our JS code.
+2. The browser provides timer, document object model, connection to servers, console and a lot more things.
+3. It provides the web apis that allows JS to interact will all these features through window object.
+example --> setTimeout() --> timer
+            fetch() --> data from servers
+            document --> to interact with DOM
+            console --> to use console etc.
+The callback functions are executed differently in the callstack.
+When we use setTimeout() in the code, the callback used in it, will be registered with the browser until
+the timer expires, it will not be executed in the call stack, and it will move ahead with further execution.
+As soon as the timer expires,  the callback is pushed into the callback queue.
+The callback queue is where the callbacks wait to be executed in the call stack.
+The event loop is like a gatekeeper that watches the callstack to be empty
+As soon as it sees that the callstack is empty, it checks if there are any callbacks
+in the callback queue waiting to be executed.
+Then it pushes the callback from the queue to the stack where it is finally executed and popped out.
+Same process happens with the callbacks added to event listeners.
+The callbacks used with promises like fetch() and mutation observers are pushed into a separate queue
+called microtask queue which has higher priority than the callback queue. If there are any callbacks waiting
+in this queue, those will be pushed first by the event loop and then the callbacks in the callback queue.
+In a case where, the callbacks internally generate callback in the microtask queue, due to which the
+callbacks in the callback queue keep on waiting for a long time is called starvation of the callback queue.
+If the call stack is busy with long-running code (like a heavy for loop), even queued callbacks will be delayed,
+because the event loop waits for the stack to be empty.
+
+### JS ENGINE ###
+- It is the heart of Javascript Runtime Environment.
+- It takes the JS code as the input and goes through 3 major steps --> Parsing, compilation and execution
+- PARSING: The code is converted to tokens.
+  The syntax parser takes these tokens and converts into AST (Abstract syntax tree).
+- This AST is converted by the interpreter line by line to the bytecode which is finally
+  executed by the engine.
+- The JIT compiler works along with the interpreter to optimize the code which improves the
+  performance of execution.
+
+3. PURE FUNCTION
+- A pure function is a function that always produces the same output for the
+  same inputs and does not cause any side effects.
+- It relies only on its arguments and does not modify any external state. Pure
+  functions are predictable, easier to test, and promote code reusability.
+example: function add(a,b){ return a+b; }
+
+4. IMPURE FUNCTION
+- An impure function is a function that can produce different outputs for the
+  same inputs or cause side effects by modifying external state.
+- It may rely on variables outside its scope or perform actions like modifying
+  global variables or making network requests. Impure functions can be harder
+  to reason about and test.
+example: let count = 0 ; increment(){ count++; console.log(count); }
+Each time increment is called, it is changing the global variable
+
+5. HIGHER ORDER FUNCTION
+- a higher-order function is a function that can accept other functions as
+  arguments or return a function as its result
+- In JavaScript, functions are treated as
+  first-class citizens, which means they can be assigned to variables, passed as
+  arguments, and returned from other functions. This allows higher-order
+  functions to be defined and used effectively.
+- Higher-order functions can accept
+  other functions as arguments. These functions are often referred to as
+  callback functions or function parameters. The higher-order function can then
+  invoke the callback function at a specific time or condition.
+ - Higher-order functions can also return functions as
+   their result. This is particularly useful for creating specialized functions or
+   building function factories.
+ - Higher-order functions promote
+   abstraction and code reusability by encapsulating common functionality in a
+   higher-level function. This can reduce code duplication and make the
+   codebase more modular and maintainable.
+
+6. HIGHER ORDER FUNCTIONS IN ARRAY
+- Common examples of higher-order functions in JavaScript include map(),
+  filter(), reduce(), and forEach(), which accept a callback function as an
+  argument. These functions encapsulate common operations on arrays and
+  can be customized by providing different callback functions.
+  * map---->
+- The map() method is a higher-order function that operates on arrays in
+  JavaScript. It creates a new array by applying a provided callback function to
+  each original array element.
+- The callback function is executed for every element, and the return value of
+  each function call is added to the new array.
+- The resulting array has the same length as the original array, with each
+  element transformed based on the logic defined in the callback function.
+  * filter --->
+- The filter() method is another higher-order function that works with arrays.
+  It creates a new array containing elements from the original array that satisfy
+  a specified condition.
+- The callback function provided to filter() is executed for each element, and
+  if the return value is true, the element is included in the resulting array. If the
+  return value is false, the element is excluded.
+  * reduce -
+- The reduce() method is a higher-order function that allows for the
+  accumulation of a single value by iterating over the elements of an array.
+- It executes a reducer function on each element and maintains an
+  accumulator that stores the accumulated value.
+- The reducer function takes two arguments: the accumulator and the current
+  element. The accumulator is updated based on the logic defined in the
+  reducer function, and the final accumulated value is returned.
+There are other methods in array other than these like -->
+1. find --> returns the first element in an array that satisfies the
+            provided testing function otherwise undefined.
+2. findIndex -->  returns the index of first element in an array that satisfies the
+                   provided testing function otherwise -1.
+3. every --> return boolean value if all the elements meet the specific condition
+4. fill ---> changes all elements in an array with a static value, starting from
+             a specified start index and ending at a specified end index (excluded).
+             const numbers = [1,2,3,4,5] numbers.fill(0,2,4)
+             --> 1,2,0,0,5
+5. findLast-> searches from right to left
+6. findLastIndex
+7. forEach --> The forEach function executes a provided function once for each element in an
+               array. It is commonly used to perform an operation on each item of the array without
+               returning a new array.
+
+** FUNCTION CURRYING
+- Function currying is a technique in JavaScript that involves transforming a
+  function with multiple arguments into a sequence of functions, each taking a
+  single argument.
+- It helps create more flexible and
+  specialized functions by partially applying arguments, leading to cleaner and
+  more expressive code.
+ex: function multiply(a,b){
+     return a*b;
+}
+function curry(a){
+  return function (b){
+       return multiply(a,b);
+  }
+}
+const multiplyBy2 = curry(2);
+multiplyBy2(3) --> 6
+multiplyBy2(5) --> 10
+const multiplyBy3 = curry(3);
+multiplyBy3(3) --> 9
+multiplyBy3(5) --> 15
+
+** THIS KEYWORD
+1. in global space --> refers to global object, in case of browser it is window
+2. inside a function --> strict mode --> undefined, non strict --> global object
+  In non-strict mode, if the "this" keyword is undefined/ null, it is replaced by global object.
+
+  function x() { console.log(this) }
+
+The value of this keyword depends on how the function is called
+In strict mode --> x() // undefined window.x() // window object
+
+3. inside object
+method --> function in an object.
+If you call this keyword inside this method, it refers to the object
+
+4. call, apply, bind
+--> explained in oops
+
+5. inside arrow function
+- it do not have its own this binding
+- it refers to enclosing lexical context
+ex. obj = { a: 1. b: ()=>{console.log(this)}
+- obj is the global context so it refers to the global object
+ex. obj = { a: 1. b: function(){
+               const y = ()=>{console.log(this)}
+               y().
+               }
+           }
+- now it is enclosed in the local execution context of obj , so it refers to obj
+
+6. Inside DOM - reference to HTML element
 
 
 
