@@ -1,0 +1,37 @@
+ * React = the core library through which we can create components and build our UI in more
+ structured and organized manner.
+ * React-DOM = it's the React library that acts a bridge between the DOM tree and the React components.
+               It provides apis to render our React components into the DOM tree
+
+What is a React element ?
+- smallest building block in a React application that describes UI.
+- it is not the actual DOM node.
+- it's a plain object that describes the DOM node / component to render
+- t’s immutable (unchangeable once created).
+
+To create a React element ==>
+React.createElement(tagName, attributes, children)
+attributes --> object where we can define attributes to our html element
+children --> the content within the html element, if it is a single child, you can pass the
+             React element directly, otherwise you need to pass an array.
+when you console log this React element -> it contains
+1. type ==> tag name
+2. props ==> {children, ...attributes}
+
+
+To render react elements into the actual DOM,
+React needs a root container within which it will render all the React elements.
+To define the root we use,
+const root = ReactDOM.createRoot(document.getElementById("root"));
+This method creates the root container where we pass the target node in our actual DOM as the argument.
+To render the React element, we use render() on root which takes react element as parameter;
+const heading = React.createElement("h1", null, "Hello"); // react element)
+root.render(heading);
+It takes the javascript object, converts it to browser understandable node element
+This will inject the node element into the actual DOM
+
+Why React?
+
+
+
+

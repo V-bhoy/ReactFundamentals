@@ -1,0 +1,58 @@
+* Data Types --> primitive, non primitive.
+
+* Primitive -->
+- contain immutable values.
+- we have to create an entirely new value by copying it into a separate variable.
+- these are represented at the lowest level - simple values
+- if they are not contained in objects or closures, they are allocated in stack memory.
+
+1. undefined
+2. null
+3. boolean
+4. number
+5. string
+6. bigint
+7. symbol
+
+- these have fixed memory
+
+** non-primitive
+- memory is allocated dynamically at runtime.
+- these are data structures that can grow/shrink based on the data they contain.
+- objects ==> memory allocation is based on the number or size of properties it contains
+- array ==> memory allocation is based on the number of elements
+- functions ==> memory includes the body of the function and any variables included in its closure.
+                it is based on its implementation & the variables captured.
+- non-primitives are stored in heap memory where memory is allocated at runtime.
+
+** MEMORY ARCHITECTURE
+- in the JS engine ==> we find two memory segments --> stack & heap
+
+** stack
+- stores static data - primitive values & references to objects & functions.
+- the size of the static data is known during compilation
+- the memory is allocated for each value before execution and deallocated after execution.
+- data is stored linearly allowing easy and fast access
+- JS has only one stack that is the call stack.
+
+** Heap
+--> divided into few segments
+    1. new space (young generation)
+    2. old space (old generation)
+    3. large object space
+    4. code space
+    5. cell space
+    6. property cell space
+    7. map space
+- Each space is divided into pages
+- Each page is divide into objects
+- object created --> inside a page --> inside a space in heap memory
+- whenever the memory needs to be allocated for an object , it looks for the free slot in
+  the pages, if found, it is allocated to the object and the reference is updated.
+- if no slot is found, a new page is created and the slot is allocated.
+- GC frees up memory chunks across heap, if the whole page is freed, the page, is removed from the space.
+
+closures occupy memory until the script completes.
+repeated calls to functions with closures may cause memory persistence.
+- they can cause memory leaks
+
