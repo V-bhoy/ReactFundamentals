@@ -30,7 +30,17 @@ root.render(heading);
 It takes the javascript object, converts it to browser understandable node element
 This will inject the node element into the actual DOM
 
-Why React?
+What is npm?
+npm does not stand for node package manager.
+But it is a standard repository where all the packages and libraries are hosted, which we can import
+in our application and npm manages those libraries in our application.
+Let's have npm in our app!
+
+cmd => npm init
+asks few things to configure
+once we configure those properties, it creates package.json in your file.
+
+package.json? it is configuration for npm
 
 
 
