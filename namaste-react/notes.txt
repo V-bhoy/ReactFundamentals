@@ -7,7 +7,7 @@ What is a React element ?
 - smallest building block in a React application that describes UI.
 - it is not the actual DOM node.
 - it's a plain object that describes the DOM node / component to render
-- t’s immutable (unchangeable once created).
+- it’s immutable (unchangeable once created).
 
 To create a React element ==>
 React.createElement(tagName, attributes, children)
@@ -17,6 +17,7 @@ children --> the content within the html element, if it is a single child, you c
 when you console log this React element -> it contains
 1. type ==> tag name
 2. props ==> {children, ...attributes}
+3. other properties
 
 
 To render react elements into the actual DOM,
@@ -40,8 +41,245 @@ cmd => npm init
 asks few things to configure
 once we configure those properties, it creates package.json in your file.
 
-package.json? it is configuration for npm
+package.json? it is configuration for npm which will manage packages aka dependencies in our app.
+Why do we need this?
+- Handles what packages your project needs
+- Allows easy install/updates via npm or yarn when cloned
+- Helps deploy, build, and automate
+- It separates tools needed only for development: devDependencies , not installed in production
+- define custom commands
+- includes basic information of our app
 
+Let's move ahead with installing dependencies.
+The most important package/dependency is a bundler.
 
+What is a bundler?
+- We write multiple files including html, css and js in our app.
+- Before sending these files to production on the browser,
+  it needs to be optimized, minified, compressed, resolve dependencies and transpile into browser-friendly code
+  into a single set of few files called a bundle which is a production ready version of
+  our original source code which is more fast and efficient.
+  This process of creating bundle is done by bundler which is a package.
+  Example: webpack, vite, parcel etc.
+
+  When we created react app using CRA, it was using webpack as a bundler and babel behind the scenes.
+  I will be going with vite as a bundler for my app.
+
+  There are 2 dependencies our app can have - normal dependencies & dev dependencies.
+  normal --> used in both dev & production
+  Dev --> only required during development
+
+  we will install vite as a dev dependency, because we don't need it once our app is on production.
+  cmd --> npm install -D vite (-D defines dev dependency and this is basically the vite cli)
+  vite is installed as a dev dependency in package.json
+  the carat in the version here indicates upgrades to the minor version while ~ upgrades to the major one
+  Also, we get one more file --> package-lock.json
+
+  What is package-lock.json?
+  package.json --> it keeps track of approx versions of the installed dependencies, it can install between the
+                   version that is listed or a minor upgrade than that.
+                   - this can cause different version setup on different machines.
+  package-lock.json --> it keeps track of exact version of the dependencies that is being used in our app.
+                        it also maintains a hash for the same.
+                        It locks the exact versions of every installed package and its dependencies.
+  Why it's needed?
+  -  Ensures Consistency of versions setup Across Environments.
+  -  Since the file already has the full dependency tree,
+     npm install doesn’t have to calculate it — it just installs what’s in the lock file.
+     That saves time and we have fast installations.
+
+  Also, we get node_modules folder.
+  - this repository contains all the modules for the dependencies that we installed from npm.
+  - these dependencies also have their own package.json where their dependencies are listed
+    which also exist in this module. These are also known as transitive dependencies.
+  - These transitive dependencies depend on other more dependencies and we end up with a dependency tree
+  - this folder is very bulky since it contains all the dependencies along with its transitive dependencies,
+     we should not push it to git.
+  - this is recreated automatically when we do npm install as it reads all the dependencies
+    from package-lock.json
+
+Now, let's run a simple source html file that is index.html, if not created, create one.
+cmd --> npx vite
+The index.html will be served on http://localhost:5173.
+Vite treats index.html as source code and part of the module graph
+during development Vite is a server, and index.html is the entry point to your application.
+
+What happened here?
+1. npx --> executing a package
+2. npx vite ---> executing vite package
+3. Running vite starts the dev server using the current working directory as root
+4. Vite will build a development build for our app, the root directory, and serves the files on localhost.
+
+Now installing react & react-dom through cdn link is just one way of importing them in our app.
+We should not be doing that. Why?
+Importing through cdn links is a costly operation. This will make a network call each time we reload the page.
+Also, we need to update  the url, if there are any version updates.
+If we already have it in our node_modules we do not need to install it again. Also, it is easier to manage
+the version dependencies.
+Hence, we will install react & react-dom as a package in our app. We need these as a normal dependency.
+cmd --> npm install react react-dom
+The packages are installed in our node_modules, we no longer need cdn links.
+
+But still our app does not work, it says React is not defined.
+Let's import React from the package in our App.js file
+it still gives an error saying --> Cannot use import statement outside a module
+What does this mean ?
+We are linking the App.js int the <script> tag.
+The browser treats this file as a browser script, normal javascript file. We cannot use import/export here.
+It is not treated as a module. Hence, it says, cannot use import outside a module.
+To define it as a module, we need to add attribute type="module" on the script tag.
+Now this works!!
+
+Module features -
+Scoped: Variables/functions are not added to the global window object.
+Can use import and export (ES6 Module system).
+Scripts are deferred by default (they wait until HTML is parsed).
+Modules are strict mode by default ('use strict' is implied).
+CORS applies → you can’t load modules from file:// without a local server.
+
+Let's talk about vite now:
+- next-generation frontend build tool which solves problems developers face with older tools like Webpack,
+  especially around speed and performance during development.
+In development mode -
+1. It starts up the dev server in the current working directory as root and index.html as source file.
+   sets up a connection with browser via web socket.
+2. it builds a development build and serves on localhost
+3. On saving the changes, the app refreshes automatically on the browser, and the changes are displayed.
+   how? ==> HMR (HOT MODULE REPLACEMENT)
+
+The dependencies, they are mostly in commonJS or UMD format, which browsers do not really understand.
+vite uses esbuild(written in Go, superfast) that converts them to modern ESM format super quickly.
+It pre-bundles these dependencies which gets cached in node_modules/.vite. This happens only once,
+unless we change anything in dependencies
+Our source code - jsx / js/ ts etc.
+vite assumes that we are using modern browsers that support ecma script modules.
+native ES Modules (ESM) are a feature built into modern browsers,
+like an API that lets JavaScript files import and export code natively without needing bundlers
+like Webpack or Vite in dev mode.
+allow you to split your JavaScript into smaller, reusable files and load them natively .
+✅ Browser Handles:
+	•	Fetching the file (module1.js)
+	•	Parsing and evaluating it
+	•	Linking it with main.js via the import statement.
+Whenever the browser parses the import statement,
+Fetches each imported module over HTTP (like API requests)
+Vite intercepts these requests and serve the imports as individual modules to the browser on demand.
+If the browser reads an import that is requesting jsx,
+it uses vite plugins, in our case react plugin, that internally uses babel to transform jsx to js
+and then served to the browser as an individual module.
+So, there is no bundling for source files in dev mode, only the dependencies are pre-bundled
+and cached which is reused on the app reload, the modules are fetched as needed
+which leads to faster build time and development process.
+There is a file watcher in vite that watches the files that are served on browser.
+If there is any change in a particular module, it will request only that particular module from the
+server. The vite server transforms the requested module only which is replaced and re-rendered
+with the updated code. Only the changed module is rebuild, the whole page is not reloaded
+and the state is preserved. This is how HMR works.
+
+Feature	      Behavior in Dev (Vite)
+Images	      Served as-is, not optimized
+CSS	          Injected via JS, supports HMR
+Fonts & Media Served raw, no optimization
+JavaScript	  Served as ESModules, unbundled (fast updates)
+JSX/TS	      Transformed by esbuild, very fast
+HMR	          Reloads only changed module
+
+File Type	Tool Used	    Plugin	                                             Notes
+.js, .ts	esbuild         Built-in	                                        Fast transpilation
+.jsx, .tsx	Babel or SWC	@vitejs/plugin-react or @vitejs/plugin-react-swc	JSX transformation with Fast Refresh
+
+** In production, vite uses rollup(bundler) under the hood
+- The entire app is bundled into an optimized version and then served on production which is very fast ad efficient
+  in performance.
+	1.	Entry point resolution:
+	•	Starts from your index.html or main.jsx/ts entry.
+	•	Follows imports and creates a complete dependency graph.
+	-  Transpilation via Rollup Plugins
+    	•	Vite is built on top of Rollup for production builds.
+    	•	It uses Rollup plugins (which can internally use tools like Babel, SWC, or esbuild) to transpile:
+    	•	JSX → JS
+    	•	TypeScript → JS
+    	•	Other syntaxes → browser-compatible JS
+	2.	Rollup is used for bundling:
+    •	Vite switches to Rollup, a powerful bundler focused on producing optimized output.
+    •	Combines all modules into a few (or single) JS/CSS chunks.
+     After transpilation, Rollup bundles all your source files and dependencies into optimized chunks.
+       	•	It performs:
+       	•	Tree-shaking (removes unused code)
+       	•	Code-splitting (for better caching)
+       	•	Module flattening (fewer nested imports)
+    - 	Tree Shaking:
+    •	Removes unused code (dead code elimination).
+    •	Happens at both module and function level.
+    -	Code Splitting:
+    •	Automatically splits chunks based on route-based code splitting (with dynamic import()).
+    Code splitting means dividing your app into smaller chunks
+    instead of bundling everything into a single huge JavaScript file.
+    ✅ Why it’s useful?
+    	•	Faster initial load: Only the minimum JS required for the current page/view is loaded.
+    	•	Lazy loading: Other chunks are loaded only when needed
+    	    (e.g., when the user navigates to another route).
+    	•	Better caching: If one chunk changes,
+    	    the browser can cache the rest (unchanged ones) — saving bandwidth and time.
+   - Module flattening
+   When you import modules (especially with deep dependency trees), you often get many nested imports.
+   Module flattening reduces this deep tree structure into a more linear, flat bundle.
+   ✅ Why it’s useful?
+   	•	Reduces the number of nested function calls/import wrappers
+   	•	Faster execution: JS engines can parse and run flatter modules more efficiently.
+   	•	Smaller output: Flattening avoids duplicated wrappers and boilerplate for each module.
+   	Faster parsing, smaller code, better runtime
+
+    3.	Minification: (compresses the code that is being used)
+    •	Uses esbuild (faster than Terser) for JS and TS minification.
+    •	Compresses variable names, removes comments, whitespace, etc.
+    •	Once the bundle is ready, Vite uses esbuild to minify the final JS output.
+    	•	Minification involves:
+    	•	Removing comments & whitespace
+    	•	Shortening variable names
+    	•	Collapsing expressions
+    - 	CSS Optimization:
+    •	Extracted into separate files.
+    •	Minified (via cssnano or Rollup plugin).
+    •	Supports purging unused CSS (tree shaking for CSS).
+    -	Asset Optimization:
+    •	Images, fonts, SVGs below a certain size are inlined as base64.
+    •	Larger assets are copied and renamed with hashes for cache busting.
+    -	Hashing & Cache Busting:
+    •	Final output files are content-hashed (e.g., main.abc123.js).
+    •	Enables long-term browser caching without worrying about stale content.
+    -	HTML Minification:
+    •	Your index.html is also minified and references the hashed bundles.
+
+    🚀 TL;DR – Why Vite is Production-Ready and Fast:
+    •	Uses Rollup for optimal bundling.
+    •	Uses esbuild for blazing fast minification.
+    •	Smart caching with hashed filenames.
+    •	Native support for modern features like dynamic imports.
+    •	Handles CSS, static assets, and HTML optimally.
+        smaller bundle size → faster load.
+
+    Feature	        Webpack          	 Vite (via Rollup)
+    Speed	        Slower builds	     Faster due to Rollup + esbuild
+    Tree Shaking	Supported	         Better with Rollup
+    Configuration	More complex	     Simpler and convention-based
+    Output Size	    Generally larger	 Smaller due to aggressive tree shake
+    Plugin Ecosystem Mature, large	     Good (uses Rollup plugins)
+    Dev Server	     Built-in HMR	     Lightning fast with native modules
+
+  To create a production build, we use -
+  cmd --> npx vite build
+  🔍 What Vite Does in This Build:
+  	•	Transpiles JS/JSX/TS as needed
+  	•	Tree-shakes unused exports
+  	•	Code-splits into smaller modules
+  	•	Minifies code using esbuild
+  	•	Optimizes static assets
+  	•	Outputs production files in dist/ where you see the chunks that will be served on browser.
+Additionally, you can add vite config, for customizing build behaviour and advanced bundling.
+
+ To test it locally:
+ npx vite preview
+ It runs a static server serving files from dist/.
 
 

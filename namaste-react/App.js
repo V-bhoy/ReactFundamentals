@@ -1,12 +1,16 @@
+import React from "react";
+import ReactDOM from "react-dom/client";
+
 const heading = React.createElement("h1", {id: "heading"}, "Hello World from React!")
 // console.log(heading); // this is a React element which is a plain js object that describes the DOM node
 // this will not print the element but an object
+
 
 // lets render a nested html elements
 const parent = React.createElement("div", {id: "parent"},
                         React.createElement("div", {id: "child"},
                              [
-                                 React.createElement("h1", null, "I am an h1 tag"),
+                                 React.createElement("h1", null, "Hello again!"),
                                  React.createElement("h2", null, "I am an h2 tag")
                              ]
                         )

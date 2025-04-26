@@ -1,0 +1,7 @@
+Let's write the scripts in package.json for starting the app in dev mode, and creating a build in production.
+    "dev": "vite",
+    "build": "vite build",
+ npm run dev --> will start our app in development mode
+ npm run build --> will create a production ready build for us.
+
+ When we create a React element
