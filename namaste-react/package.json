@@ -19,6 +19,7 @@
   "author": "Vaishali Bhoyar",
   "license": "ISC",
   "devDependencies": {
+    "@vitejs/plugin-react": "^4.4.1",
     "vite": "^6.3.3"
   },
   "dependencies": {

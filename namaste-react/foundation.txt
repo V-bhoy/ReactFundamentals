@@ -4,4 +4,149 @@ Let's write the scripts in package.json for starting the app in dev mode, and cr
  npm run dev --> will start our app in development mode
  npm run build --> will create a production ready build for us.
 
- When we create a React element
+ When we create a React element, in App.js directly, it looks very clumsy
+ Also, it is hard to write, read, understand and maintain
+ The nested React elements makes the code more hard to maintain, read and understand.
+ It is not developer friendly.
+
+** JSX
+JSX is a part of React is a myth.
+JSX allows to write html in javascript is also myth.
+
+We can write our whole React app using react elements. But we use JSX to make our life easier
+as a developer. It makes our code readable and easier to maintain.
+Also, JSX is HTML/XML like syntax. It is not HTML inside JS.
+
+
+Create React Element ==>
+// core way to create element in react but not developer friendly.
+using --> React.createElement()
+ex: const heading1 = React.createElement("h1", {id: heading}, "I am h1 using create element!")
+using --> JSX
+ex: const heading2 = <h1 id="heading">I am h1 using JSX!</h1>
+This code is more, cleaner, readable and easier to maintain.
+
+console.log(heading1, heading2)
+Both logs javascript objects --> which is React element object
+So, creating elements using JSX/React.createElement --> gives you react element object.
+
+Do JS engine understand JSX ?
+No, It is not a valid/pure Javascript, that JS engine can understand.
+
+How are these react elements rendered?
+The JSX is transpiled by the bundler to React.createElement(...) before
+it is sent to the browser and it undertands that.
+What does transpile mean? transforming JSX to browser friendly JS - that browser/React can understand.
+
+➡️ Vite is not automatically capable of transforming JSX itself.
+   Internally it uses esbuild for it since it already knows how to handle basic JSX transformation
+   even without Babel/SWC.
+   But… it only handles simple JSX-to-JS transformation
+   without any React Fast Refresh or advanced features.
+   If you make a change in JSX, it is causing whole page to reload
+
+So, right now, if we directly include JSX, in our js files,
+You will get a syntax error in the browser console!
+- the content contains invalid js syntax, and if using jsx or tsx, use in jsx/tsx file
+
+Also, if you import the jsx element from .jsx
+Since it returns a pure React element, we need to import React in jsx to make it work.
+Vite by default uses esbuild for simple JSX transformations.
+We do not have any advanced features like Fast Refresh, automatic React import, better dev experience
+But this works!
+
+We must use vite plugins for transpilation, since it comes with more advanced features.
+1. Fast JSX transpilation
+2. automatic react imports at runtime
+3. better HMR and fast updates
+4. smooth handling of jsx and tsx files
+5. instant updates without losing component states
+
+Normally, when you install @vitejs/plugin-react, then:
+	•	Vite sees .jsx or .tsx files.
+	•	It applies the React plugin.
+	•	Behind the scenes,
+    	•	Plugin uses SWC/babel to transpile JSX into efficient JS code (React.createElement calls).
+    	•	If you choose automatic runtime, you don’t need to manually import React anymore!
+✅ Then browser can understand the normal JS (React.createElement) and render React elements onto the real DOM.
+
+Install plugin as a dev dependency, because in production we send the already transpiled code to production
+npm install --save-dev @vitejs/plugin-react
+As soon as you install this, you will also see package for babel in the node_modules directory
+It will use babel to transpile the JSX code to browser friendly JS.
+
+Let us configure this plugin.
+1. At the root of your project, create a file named vite.config.js:
+--> vite.config.js is a configuration file that customizes and controls how Vite behaves for your project
+    build.
+    It is the central configuration file for Vite projects.
+✅ It tells Vite:
+	•	What plugins to use (like @vitejs/plugin-react)
+	•	How to handle specific files (like .jsx, .ts, .scss, etc.)
+	•	How to define environment variables
+	•	How to change the dev server settings (port, proxy, etc.)
+	•	How to control build settings (output directory, chunk splitting, etc.);
+Without vite.config.js, Vite just uses its default settings.
+
+In this config file,
+we import defineConfig from vite
+which is a function that takes in object
+where all the configuration is built properly.
+you need to export this function from the file.
+
+It has a property called plugins having value as an array and here we register the plugin to use.
+plugins: [react()] —>
+enables Vite to transpile JSX properly behind the scenes using babel/ SWC (a superfast transpiler).
+
+Hence, if you want to use babel internally, install @vitejs/plugin-react, for swc
+@vitejs/plugin-react-swc --> written in rust, faster than babel.
+
+So, to summarize the flow
+In development mode (vite dev), Vite’s main aim is speed.
+	•	Dependencies like react, react-dom, lodash, etc., are usually already pure JS.
+	•	They don’t need complex transformation like JSX.
+	•	So Vite uses ESBuild to pre-bundle dependencies very, very fast.
+✅ Because ESBuild:
+	•	Converts CommonJS ➔ ES Modules quickly.
+	•	Flattens and optimizes dependency graphs.
+	•	Bundles them once at server start (node_modules/.vite cache).
+	•	Later when you reload or edit your code, dependencies are not re-transformed again!
+Thus:
+➔ Start server in milliseconds 🚀
+➔ Edits only affect your code, not the libraries.
+
+For complex JSX transformations, better HMR, fast refresh, automatic react imports
+we must need powerful transpiler like babel/swc which can be used via vite plugins, that
+handles transpilation gracefully once the config is registered in config file.
+
+In production build :
+Vite switches to using Rollup
+	•	Rollup does full bundling:
+	•	Tree-shaking
+	•	Code-splitting
+	•	Chunk optimization
+	•	Asset optimization (images, CSS, etc.)
+⚡ ESBuild is still used in production build! But only for:
+	•	Minifying the final JS files (.js) — because ESBuild minifies JS 10-100x faster
+✅ So:
+	•	Transpilation ➔ Babel (if you use plugin like @vitejs/plugin-react).
+	•	Bundling ➔ Rollup (advanced bundling and optimization).
+	•	Minification ➔ ESBuild (superfast compression).
+Stage	                            Who handles it?	                            What exactly happens
+Transpilation (JSX ➔ JS, TS ➔ JS)	Vite Plugins (like Babel via React plugin)	Converts source files to pure JavaScript
+Bundling / Optimization	            Rollup	                                    Combines everything, removes dead code (tree-shaking), code splits
+Minification	                      ESBuild	                                Shrinks final .js output by removing spaces, renaming vars, etc.
+
+* FLOW:
+steps	What Happens
+1	vite.config.js is loaded executed immediately
+2	React plugin is registered (Babel ready)
+3	Browser requests index.html
+4	Browser requests main.jsx
+5	Vite sees .jsx, passes it to Babel
+6	Babel transpiles JSX → React.createElement
+7	Vite serves the transpiled JavaScript
+8	Browser parses & runs the code
+9	Later, if you navigate and load new routes, Vite again transpiles on-demand using babel
+
+
