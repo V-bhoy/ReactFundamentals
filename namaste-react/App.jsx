@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import Title from "./Title";
+import Title from "./Title.jsx";
 
 // core react element
 const heading = React.createElement("h1", {id: "heading"}, "Hello World from React!")
@@ -29,7 +29,8 @@ const parent = React.createElement("div", {id: "parent"},
 
 // react element using JSX
 // importing Title from .jsx file because vite does not allow to use jsx in js file
+// const headingJsx = <h1>Hello</h1>;
 // console.log(Title()); //--> this log the React element only that is the JS object. It returns a pure React element
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(Title());
+root.render(<Title/>);

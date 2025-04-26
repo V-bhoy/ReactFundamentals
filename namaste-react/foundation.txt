@@ -29,6 +29,10 @@ This code is more, cleaner, readable and easier to maintain.
 console.log(heading1, heading2)
 Both logs javascript objects --> which is React element object
 So, creating elements using JSX/React.createElement --> gives you react element object.
+We can use javascript expressions inside the {} in JSX.
+If writing JSX in multiple lines then using ‘()’ parenthesis is
+mandatory. To tell Babel from where JSX is starting and ending.
+the attributes in jsx element is written camelcase.
 
 Do JS engine understand JSX ?
 No, It is not a valid/pure Javascript, that JS engine can understand.
@@ -149,4 +153,37 @@ steps	What Happens
 8	Browser parses & runs the code
 9	Later, if you navigate and load new routes, Vite again transpiles on-demand using babel
 
+** React Component
+- It is reusable piece of UI which can be nested, managed & handled independently.
+- Everything inside React is a component.
+- 2 types ==>
+     - Class based components --> old way of writing code.
+     - Functional components --> new way of writing code.
 
+** React functional component
+ - normal javascript function that returns some JSX element (react element).
+ - its name is defined with a capital letter
+ - to render it, we call them in angular brackets like <Comp/> or <Comp></Comp>
+
+** Component Composition
+- nesting a React component into another component
+
+- to call react element inside jsx, we can call the variable in {}
+
+** Advantages of using JSX
+1.  Sanitizes the data
+- If someone gets access to your JS code and sends some malicious
+  data which will then get displayed on the screen, that attack is
+  called cross-site scripting.
+- It can read cookies, local storage, session storage, get
+  cookies, get info about your device, and read data. JSx takes
+  care of your data.
+-If some API passes some malicious data JSX will escape it. It
+ prevents cross-site scripting and sanitizes the data before
+ rendering
+2) Makes code readable
+JSX makes it easier to write code as we are no longer creating
+elements using React.createElement()
+3) Makes code simple and elegant
+4) Show more useful errors and warnings
+5) JSX prevents code injections (attacks)
