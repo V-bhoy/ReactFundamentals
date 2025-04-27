@@ -32,6 +32,14 @@ const errorStyles = {
     borderRadius: 5
 }
 
+// One of the most common use cases of preventDefault() is in forms.
+// When a form is submitted, the default behavior is that the page reloads
+// or navigates to a new URL (based on the form’s action attribute).
+// If you don’t want that to happen (for example, to send the form data via JavaScript asynchronously),
+// you use preventDefault().
+// pressing the Enter key won’t trigger form submission or any other default action associated with it.
+// use it when You want to stop the browser’s default action for a particular event.
+
 export default function ContactForm(){
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
