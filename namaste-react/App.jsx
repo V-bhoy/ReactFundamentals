@@ -5,6 +5,7 @@ import ChipsInput from "./coding-problems/ChipsInput";
 import Accordian from "./coding-problems/Accordian";
 import ProgressBar from "./coding-problems/ProgressBar";
 import ContactForm from "./coding-problems/ContactForm";
+import GuessTheNumber from "./coding-problems/GuessTheNumber";
 
 // core react element
 const heading = React.createElement("h1", {id: "heading"}, "Hello World from React!")
@@ -42,5 +43,6 @@ root.render(
         {/*<ChipsInput/>*/}
         {/*<Accordian/>*/}
         {/*<ProgressBar/>*/}
-        <ContactForm/>
+        {/*<ContactForm/>*/}
+        <GuessTheNumber/>
     </React.StrictMode>);
