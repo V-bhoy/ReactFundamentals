@@ -1,6 +1,9 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import Title from "./Title.jsx";
+import ChipsInput from "./coding-problems/ChipsInput";
+import Accordian from "./coding-problems/Accordian";
+import ProgressBar from "./coding-problems/ProgressBar";
 
 // core react element
 const heading = React.createElement("h1", {id: "heading"}, "Hello World from React!")
@@ -33,4 +36,9 @@ const parent = React.createElement("div", {id: "parent"},
 // console.log(Title()); //--> this log the React element only that is the JS object. It returns a pure React element
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(<Title/>);
+root.render(
+    <React.StrictMode>
+        {/*<ChipsInput/>*/}
+        {/*<Accordian/>*/}
+        <ProgressBar/>
+    </React.StrictMode>);

@@ -1,0 +1,107 @@
+** What are props?
+- Short form for properties.
+- When we want to dynamically send data to a, component we use props.
+-  Passing a prop to a function is like passing an argument to a function.
+ex: <RestaurantCard
+     resName="Meghana Foods"
+     cuisine="Biryani, North Indian"
+    />
+These are props ==> resName and cuisine
+Props will be wrapped and send in Javascript object which we receive as a single
+argument in our component which is an object.
+
+Destructuring Props --> destructuring an object
+essential way to use data in our component through props.
+
+Normally, if you try to access a deep property without checking, JavaScript might throw an error like:
+“Cannot read property ‘xyz’ of undefined.”
+Optional chaining allows you to safely access deeply nested properties in an object without
+having to check manually if each property exists.
+It uses the ?. operator.
+If the property before ?. doesn’t exist or is undefined or null,
+it stops and returns undefined instead of throwing an error.
+
+const user = fetchUser(); // sometimes address might not exist
+const city = user?.address?.city ?? 'City not available';
+console.log(city);
+
+** Config Driven UI
+It is a user Interface that is built and configured using a
+declaration configuration file or data structure, rather than
+being hardcoded.
+Config is the data coming from the api which keeps on changing
+according to different factors like user, location, etc.
+Based on the data, UI is reflected.
+
+** Avoid repeating components in a list, instead use map to render each component
+in the list:
+instead of hard coding the same component with different props values,
+dynamic Component listing using JS map() function to loop over
+an array and pass the data to component once.
+* Unique Key id while using map --> Each item in the list must be uniquely identified with key prop.
+Why?
+When we have components at same level and if a new component
+comes on the first without ID, DOM is going to re-render all the
+components again. As DOM can’t identify where to place it.
+But if we give each of them a unique ID then react knows where
+to put that component according to the ID. It is a good
+optimization and performance thing.
+Never use index as keys in map. It is not recommended.
+Addition or removal of item will rearrange the indexes and
+the whole list will be rendered unnecessarily.
+
+** Import & Export
+Two types of export/import in React,
+1.Default export/import.
+2.Named export/import
+
+We can use both together as well
+
+How can we display data dynamically on the screen?
+- using state variable
+
+What is a state variable?
+It is a variable that holds the state of the component.
+As the variable is updated, the state of the component is updated and the
+component re-renders.
+State variable is handled by useState hook.
+
+What is a hook?
+It's simply a regular JavaScript function which are provided by React, and it offers
+some utilities. These pre-built functions have underlying logic.
+Two crucial hooks we frequently utilize are:
+1. useState()
+2. useEffect()
+
+** useState()
+- allows functional components to store and manage state.
+- it gives an array that has 2 element --> state variable & set state function
+- it takes a parameter that is the initial value to set the state.
+- Whenever the state changes, the component re-renders.
+
+--> Even if the function runs again, the previous state is kept.
+--> You don’t immediately see the updated value after calling setStateFunction. It is asynchronous.
+--> You must always use setStateFunction to update
+--> If your update depends on the previous value, it’s safer to use a function:
+    setCount(prevCount => prevCount + 1);
+--> This ensures you’re working with the most current value,
+    even if React batches multiple updates together.
+
+Why React?
+updating the real DOM is slow and a very costly operation.
+Multiple real DOM manipulations can make our app slow.
+
+React makes the process of DOM manipulation fast and efficient.
+It uses virtual DOM which is the object representation of actual DOM.
+Whenever a component changes,
+React creates a new virtual DOM of the updated changes and
+compares it with the previous virtual DOM.
+calculates the smallest possible changes that can be made in the real DOM using diffing algorithm.
+Then it updates only hose specific parts in the real DOM  which is called reconciliation.
+
+React used to use a basic Virtual DOM algorithm until React v15.
+But it was synchronous and blocking: if the UI was complex, the user experience could freeze.
+👉 So React Fiber came in React v16 — a complete rewrite of the Virtual DOM engine.
+- gives React more control = Faster, smoother apps.
+
+
