@@ -4,6 +4,7 @@ import Title from "./Title.jsx";
 import ChipsInput from "./coding-problems/ChipsInput";
 import Accordian from "./coding-problems/Accordian";
 import ProgressBar from "./coding-problems/ProgressBar";
+import ContactForm from "./coding-problems/ContactForm";
 
 // core react element
 const heading = React.createElement("h1", {id: "heading"}, "Hello World from React!")
@@ -40,5 +41,6 @@ root.render(
     <React.StrictMode>
         {/*<ChipsInput/>*/}
         {/*<Accordian/>*/}
-        <ProgressBar/>
+        {/*<ProgressBar/>*/}
+        <ContactForm/>
     </React.StrictMode>);
